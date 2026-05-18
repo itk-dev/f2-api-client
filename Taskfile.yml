@@ -1,0 +1,80 @@
+# https://taskfile.dev
+
+version: "3"
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  compose:
+    cmds:
+      - docker compose {{.TASK_ARGS}} {{.CLI_ARGS}}
+    internal: true
+
+  composer:
+    desc: Run composer inside docker compose setup, e.g. `task {{.TASK}} -- install`
+    cmds:
+      - task: compose
+        vars:
+          TASK_ARGS: run --rm phpfpm composer {{.TASK_ARGS}}
+
+  coding-standards:apply:
+    - task: coding-standards:apply:composer
+    - task: coding-standards:apply:markdown
+    - task: coding-standards:apply:php
+    - task: coding-standards:apply:yaml
+
+  coding-standards:apply:composer:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm composer normalize
+
+  coding-standards:apply:markdown:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm markdownlint markdownlint '**/*.md' --fix
+
+  coding-standards:apply:php:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm vendor/bin/php-cs-fixer fix
+
+  coding-standards:apply:yaml:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm prettier '**/*.{yml,yaml}' --write
+
+  coding-standards:check:
+    - task: coding-standards:check:composer
+    - task: coding-standards:check:markdown
+    - task: coding-standards:check:php
+    - task: coding-standards:check:yaml
+
+  coding-standards:check:composer:
+    - task: coding-standards:apply:composer
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm composer normalize --dry-run
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm composer validate
+
+  coding-standards:check:markdown:
+    - task: coding-standards:apply:markdown
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm markdownlint markdownlint '**/*.md'
+
+  coding-standards:check:php:
+    - task: coding-standards:apply:php
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm vendor/bin/php-cs-fixer fix --dry-run --diff
+
+  coding-standards:check:yaml:
+    - task: coding-standards:apply:yaml
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm prettier '**/*.{yml,yaml}' --check
