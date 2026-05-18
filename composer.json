@@ -2,5 +2,27 @@
     "name": "itk-dev/f2-api-client",
     "description": "F2 API client",
     "license": "MIT",
-    "type": "library"
+    "type": "library",
+    "require-dev": {
+        "ergebnis/composer-normalize": "^2.52",
+        "friendsofphp/php-cs-fixer": "^3.95"
+    },
+    "autoload": {
+        "psr-4": {
+            "ItkDev\\F2ApiClient\\": "src/"
+        }
+    },
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
+        }
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "@php composer normalize"
+        ],
+        "post-require": [
+            "@php composer normalize"
+        ]
+    }
 }
