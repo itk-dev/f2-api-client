@@ -1,0 +1,6 @@
+{
+    "name": "itk-dev/f2-api-client",
+    "description": "F2 API client",
+    "license": "MIT",
+    "type": "library"
+}
