@@ -9,6 +9,10 @@ services:
             - PHP_IDE_CONFIG=serverName=localhost
         volumes:
             - .:/app
+        # https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/#additional-information-1
+        env_file:
+            - path: .env.local
+              required: false
 
     # Code checks tools
     markdownlint:

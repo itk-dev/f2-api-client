@@ -1,6 +1,8 @@
-composer.lock
-vendor/
-
 ###> friendsofphp/php-cs-fixer ###
 /.php-cs-fixer.cache
 ###< friendsofphp/php-cs-fixer ###
+
+*.local
+.idea
+composer.lock
+vendor/
