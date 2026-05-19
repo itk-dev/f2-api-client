@@ -1,0 +1,49 @@
+name: Mago
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+            - develop
+
+jobs:
+    # https://mago.carthage.software/latest/en/guide/getting-started/
+    mago:
+        name: Mago
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Create docker network
+              run: |
+                  docker network create frontend
+
+            - run: |
+                  docker compose run --rm mago lint
+
+    mago-format:
+        name: Mago - format
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Create docker network
+              run: |
+                  docker network create frontend
+
+            - run: |
+                  docker compose run --rm mago format --check
+
+    mago-analyze:
+        name: Mago - analyze
+        runs-on: ubuntu-latest
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Create docker network
+              run: |
+                  docker network create frontend
+
+            - run: |
+                  docker compose run --rm mago analyze

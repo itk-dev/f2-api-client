@@ -1,6 +1,6 @@
 # https://taskfile.dev
 
-version: "3"
+version: '3'
 
 tasks:
   default:
@@ -78,3 +78,21 @@ tasks:
     - task: compose
       vars:
         TASK_ARGS: run --rm prettier '**/*.{yml,yaml}' --check
+
+  # https://mago.carthage.software/latest/en/guide/getting-started/
+  mago:run:
+    desc: 'Run all Mago steps (cf. https://mago.carthage.software/latest/en/guide/getting-started/)'
+    cmds:
+      - task: mago:lint
+      - task: mago:format
+      - task: mago:analyze
+
+  mago:lint: &mago_command
+    desc: 'Run `mago {{.TASK | replace "mago:" "" }}` inside docker compose setup'
+    cmds:
+      - task: compose
+        vars:
+          TASK_ARGS: run --rm mago {{.TASK | replace "mago:" "" }}
+
+  mago:format: *mago_command
+  mago:analyze: *mago_command
