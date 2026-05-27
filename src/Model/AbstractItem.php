@@ -6,31 +6,17 @@ namespace ItkDev\F2ApiClient\Model;
 
 abstract class AbstractItem implements \JsonSerializable, \Stringable
 {
-    protected string $id;
-    protected string $title;
-    protected \DateTimeImmutable $published;
-    protected \DateTimeImmutable $updated;
+//    abstract  static function fromResponse(ResponseInterface $response);
+    abstract  static function fromSimpleXMLElement(\SimpleXMLElement $sxe);
 
-    public function __construct(\SimpleXMLElement $entry)
-    {
-        $this->id = (string) $entry->id;
-        $this->title = (string) $entry->title;
-        $this->published = new \DateTimeImmutable((string) $entry->published);
-        $this->updated = new \DateTimeImmutable((string) $entry->updated);
+protected static function listOf(string $class, \SimpleXMLElement $sxe): array
+{
+    $items = [];
+    foreach ($sxe as $child) {
+        $items[] = $child::class::fromSimpleXMLElement($child);
     }
 
-    public function __toString(): string
-    {
-        return sprintf('%s (%s)', $this->title, $this->id);
-    }
+    return $items;
+}
 
-    public function jsonSerialize(): array
-    {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'published' => $this->published->format(\DateTimeInterface::ATOM),
-            'updated' => $this->updated->format(\DateTimeInterface::ATOM),
-        ];
-    }
 }

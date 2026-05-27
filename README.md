@@ -2,6 +2,8 @@
 
 API client for [The cBrain F2 Platform](https://www.cbrain.com/software-pages/the-f2-platform).
 
+See the [F2 REST API documentation](resources/f2-rest-docs/f2-rest-docs-v13s.html#outline) for details.
+
 ## Installation
 
 ``` shell
@@ -29,10 +31,22 @@ docker compose run --quiet --rm phpfpm php bin/f2-api-client getServiceIndex
 
 to check that you can talk to the F2 API.
 
+> [!NOTE]
+> We'll use `task f2-api-client:run` (cf. [Taskfile.yml](Taskfile.yml)) as a shorthand for running `docker compose run
+> --quiet --rm phpfpm php bin/f2-api-client` (cf. [Development](#development)).
+>
+> Use `task f2-api-client:debug` to debug with Xdebug.
+
 Search cases with
 
 ``` shell
-docker compose run --quiet --rm phpfpm php bin/f2-api-client searchCases '{"q": "test", "count": 10}'
+task f2-api-client:run -- caseSearch test
+```
+
+See case details:
+
+``` shell
+task f2-api-client:run -- caseById 2204
 ```
 
 ## Development
@@ -69,6 +83,10 @@ classDiagram
     %% Item <|-- CaseFile
 ```
 
+[F2 REST API, p. 4](resources/f2-rest-docs/f2-rest-docs-v13s.html#4)
+
+---
+
 > The client MUST read the service index at runtime and use it to locate the links it needs.
 
-<https://github.com/itk-dev/f2-api-client/blob/main/resources/f2-rest-docs-v13.pdf#page=8>
+[F2 REST API, p. 8](./resources/f2-rest-docs/f2-rest-docs-v13s.html#8)

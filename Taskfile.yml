@@ -81,7 +81,8 @@ tasks:
 
   # https://mago.carthage.software/latest/en/guide/getting-started/
   mago:run:
-    desc: 'Run all Mago steps (cf. https://mago.carthage.software/latest/en/guide/getting-started/)'
+    desc: 'Run all Mago steps (cf.
+      https://mago.carthage.software/latest/en/guide/getting-started/)'
     cmds:
       - task: mago:lint
       - task: mago:format
@@ -98,15 +99,18 @@ tasks:
   mago:analyze: *mago_command
 
   f2-api-client:run:
-    desc: 'Run bin/f2-api-client inside docker compose setup, e.g. `task {{.TASK}} -- searchCases ''{"q": "test", "count": 10}''`'
+    desc: 'Run bin/f2-api-client inside docker compose setup, e.g. `task {{.TASK}}
+      -- searchCases ''{"q": "test", "count": 10}''`'
     cmds:
       - task: compose
         vars:
           TASK_ARGS: run --quiet --rm phpfpm php bin/f2-api-client
 
   f2-api-client:debug:
-    desc: 'Debug bin/f2-api-client inside docker compose setup, e.g. `task {{.TASK}} -- searchCases ''{"q": "test", "count": 10}''`'
+    desc: 'Debug bin/f2-api-client inside docker compose setup, e.g. `task {{.TASK}}
+      -- searchCases ''{"q": "test", "count": 10}''`'
     cmds:
       - task: compose
         vars:
-          TASK_ARGS: run --quiet --env PHP_XDEBUG_MODE=debug --rm phpfpm php bin/f2-api-client
+          TASK_ARGS: run --quiet --env PHP_XDEBUG_MODE=debug --rm phpfpm php
+            bin/f2-api-client

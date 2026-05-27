@@ -34,11 +34,15 @@ class F2ApiClientCommand
 
         $response = match ($action) {
             'getServiceIndex' => $client->getServiceIndex(),
-            'searchCases' => $client->searchCases($getArray($arg)),
+            'caseSearch' => $client->caseSearch($arg),
+            'caseById' => $client->caseById($arg),
+            'matterSearch' => $client->matterSearch($arg),
+            'matterById' => $client->matterById($arg),
+            'matterByMatterNumber' => $client->matterByMatterNumber($arg),
             default => throw new InvalidArgumentException(sprintf('Invalid action: %s', $action)),
         };
 
-        $io->writeln((string) json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES));
+        $io->writeln((string) json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
 
         return Command::SUCCESS;
     }

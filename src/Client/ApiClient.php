@@ -4,18 +4,20 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Client;
 
+use ItkDev\F2ApiClient\Exception\ApiException;
 use ItkDev\F2ApiClient\Exception\RuntimeException;
+use ItkDev\F2ApiClient\Model\Atom;
 use ItkDev\F2ApiClient\Model\CaseFile;
+use ItkDev\F2ApiClient\Model\Matter;
 use Symfony\Component\HttpClient\HttpClient;
+use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 use Symfony\Contracts\HttpClient\ResponseInterface;
 
 class ApiClient
 {
-    protected const string METHOD_GET = 'GET';
-    protected const string METHOD_POST = 'POST';
-
     private readonly array $options;
     private ?HttpClientInterface $client = null;
 
@@ -39,7 +41,7 @@ class ApiClient
     public function getServiceIndex(): array
     {
         $path = '/F2Rest/ServiceIndex';
-        $response = $this->client()->request(self::METHOD_GET, $path, [
+        $response = $this->client()->request(Request::METHOD_GET, $path, [
             'headers' => [
                 'Accept' => 'application/json',
             ],
@@ -49,16 +51,20 @@ class ApiClient
     }
 
     /**
-     * @return CaseFile[]
+     * @param array{q: string, count: int} $query
+     * @return Atom[]
      *
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\RedirectionExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function searchCases(array $query): array
+    public function caseSearch(string $q, int $count = 10): array
     {
-        //        $query = [];
+        $query = [
+            'q' => $q,
+            'count' => $count,
+        ];
         $path = '/F2Rest/search/cases';
         // @todo  /F2Rest/ServiceIndex.json reports
         //
@@ -70,18 +76,93 @@ class ApiClient
         // which refers to the actual search URL: /F2Rest/searches/cases
         $path = '/F2Rest/searches/cases';
         //        $path = $this->getRequestUrl('http://cbrain.com/casefile/rel/case-search');
-        $response = $this->request(self::METHOD_GET, $path, [
+        $response = $this->request(Request::METHOD_GET, $path, [
             'query' => $query,
         ]);
 
         $items = [];
         $sxe = new \SimpleXMLElement($response->getContent());
         foreach ($sxe->entry as $entry) {
-            $items[] = new CaseFile($entry);
+            $items[] = Atom::fromSimpleXMLElement($entry);
         }
 
         return $items;
     }
+
+    public function caseById(string $id): CaseFile
+    {
+        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/case-by-id', [
+            'id' => $id,
+        ]);
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new ApiException($response);
+        }
+
+        return CaseFile::fromSimpleXMLElement(new \SimpleXMLElement($response->getContent()));
+    }
+
+    public function matterSearch(string $searchTerms, int $count = 10): array
+    {
+        $query = [
+          'searchTerms' => $searchTerms,
+          'count' => $count,
+        ];
+        // @todo  /F2Rest/ServiceIndex.json reports
+        //
+        // "http://cbrain.com/casefile/rel/case-search": {
+        //   "href": "/F2Rest/search/cases",
+        //   "title": "Case file search"
+        // },
+        //
+        // which refers to the actual search URL: /F2Rest/searches/cases
+        $url = '/F2Rest/searches/matters';
+        $url = '/F2Rest/searches/matters?q={searchTerms}&count={count}';
+        $url = $this->replacePlaceholders($url, $query);
+//        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-search', [
+//        ]);
+        $response = $this->request(Request::METHOD_GET, $url, [
+            'query' => $query,
+        ]);
+
+        $items = [];
+        $sxe = new \SimpleXMLElement($response->getContent());
+        foreach ($sxe->entry as $entry) {
+            $items[] = Atom::fromSimpleXMLElement($entry);
+        }
+
+        return $items;
+    }
+
+    public function matterById(string $id): Matter
+    {
+        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-by-id', [
+            'id' => $id,
+        ]);
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new ApiException($response);
+        }
+
+        return Matter::fromSimpleXMLElement(new \SimpleXMLElement($response->getContent()));
+    }
+
+    public function matterByMatterNumber(string $matterNumber): Matter
+    {
+        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-by-matter-number', [
+            'matterNumber' => $matterNumber,
+        ]);
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw new ApiException($response);
+        }
+
+        return Matter::fromSimpleXMLElement(new \SimpleXMLElement($response->getContent()));
+    }
+
 
     /**
      * @return array{access_token: string, token_type: string}
@@ -91,7 +172,7 @@ class ApiClient
         // @todo Check existing access token is not expired.
 
         $client = $this->client();
-        $response = $client->request(self::METHOD_POST, '/F2Rest/oauth2/token', [
+        $response = $client->request(Request::METHOD_POST, '/F2Rest/oauth2/token', [
             'auth_basic' => [
                 $this->options['api_username'],
                 $this->options['api_secret'],
@@ -148,7 +229,7 @@ class ApiClient
         ]);
     }
 
-    protected function getRequestUrl(string $rel): string
+    protected function getRequestUrl(string $rel, array $values): string
     {
         // @todo Cache this!
         $index = $this->getServiceIndex();
@@ -158,6 +239,23 @@ class ApiClient
             throw new RuntimeException(sprintf('Cannot get rel %s', $rel));
         }
 
-        return $url;
+        return $this->replacePlaceholders($url, $values);
+    }
+
+    protected function replacePlaceholders(string $url, array $values): string
+    {
+        // Replace URL placeholders ('{…}')
+        return preg_replace_callback(
+            '/{(?P<name>[^}]+)}/',
+            static function (array $matches) use ($url, $values): string {
+                $name = $matches['name'];
+                if (!array_key_exists($name, $values)) {
+                    throw new RuntimeException(sprintf('Missing value %s for URL %s', $name, $url));
+                }
+
+                return rawurlencode((string)$values[$name]);
+            },
+            $url,
+        );
     }
 }
