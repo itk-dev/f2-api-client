@@ -23,6 +23,8 @@ class F2ApiClientCommand
         string $action,
         #[Argument]
         ?string $arg = null,
+        #[Option(description: 'Show links.')]
+        bool $showLinks = false,
         #[Option(description: 'Path to to cache directory. If not specified, no requests will be cached.')]
         ?string $cacheDirectory = null,
     ): int
@@ -31,14 +33,20 @@ class F2ApiClientCommand
 
         $response = match ($action) {
             'getServiceIndex' => $client->getServiceIndex(),
-            'caseSearch' => $client->caseSearch((string)$arg),
-            'caseById' => $client->caseById((string)$arg),
-            'matterSearch' => $client->matterSearch((string)$arg),
-            'matterById' => $client->matterById((string)$arg),
-            'matterByMatterNumber' => $client->matterByMatterNumber((string)$arg),
-            'documentById'=> $client->documentById((string)$arg),
+            'caseSearch' => $client->caseSearch((string) $arg),
+            'caseById' => $client->caseById((string) $arg),
+            'matterSearch' => $client->matterSearch((string) $arg),
+            'matterById' => $client->matterById((string) $arg),
+            'matterByMatterNumber' => $client->matterByMatterNumber((string) $arg),
+            'documentById' => $client->documentById((string) $arg),
             default => throw new InvalidArgumentException(sprintf('Invalid action: %s', $action)),
         };
+
+        $response = json_decode(json_encode($response), true);
+        if (!$showLinks) {
+            // @todo Recurse!
+            unset($response['links']);
+        }
 
         $io->writeln((string) json_encode(
             $response,

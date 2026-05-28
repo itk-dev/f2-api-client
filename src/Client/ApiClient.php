@@ -247,7 +247,7 @@ class ApiClient
 
         try {
             $cache = $this->getCache();
-            $cacheKey = sha1(__METHOD__.'|||'.$rel);
+            $cacheKey = sha1(__METHOD__ . '|||' . $rel);
 
             $url = $cache->get($cacheKey, function (CacheItemInterface $item) use ($url) {
                 $item->expiresAfter((int) $this->options['cache_item_lifetime']);

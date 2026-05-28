@@ -6,13 +6,24 @@ namespace ItkDev\F2ApiClient\Model;
 
 abstract class AbstractItem implements \JsonSerializable, \Stringable
 {
-    abstract static function fromSimpleXMLElement(\SimpleXMLElement $sxe);
+    public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
+    {
+        return (new static())->setFromSimpleXMLElement($sxe);
+    }
 
+    public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): self
+    {
+        return $this;
+    }
+
+    /**
+     * @param class-string<AbstractItem> $class
+     */
     protected static function listOf(string $class, \SimpleXMLElement $sxe): array
     {
         $items = [];
         foreach ($sxe as $child) {
-            $items[] = $child::class::fromSimpleXMLElement($child);
+            $items[] = $class::fromSimpleXMLElement($child);
         }
 
         return $items;

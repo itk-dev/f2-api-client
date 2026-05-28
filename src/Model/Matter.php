@@ -4,49 +4,47 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-final class Matter extends AbstractItem
+final class Matter extends F2Item
 {
-    public function __construct(
-        public readonly int $id,
-        public readonly string $matterNumber,
-        public readonly string $title,
-        public readonly \DateTimeImmutable $createdDate,
-        public readonly \DateTimeImmutable $modifiedDate,
-        public readonly PartyItem $modifiedBy,
-        public readonly PartyItem $responsible,
-    )
+    public string $matterNumber;
+    public string $title;
+    public \DateTimeImmutable $createdDate;
+    public \DateTimeImmutable $modifiedDate;
+    public PartyItem $modifiedBy;
+    public PartyItem $responsible;
+
+    #[\Override]
+    public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
+        parent::setFromSimpleXMLElement($sxe);
+
+        $this->id = (int) $sxe->Id;
+        $this->matterNumber = (string) $sxe->MatterNumber;
+        $this->title = (string) $sxe->Title;
+        $this->createdDate = new \DateTimeImmutable((string) $sxe->CreatedDate);
+        $this->modifiedDate = new \DateTimeImmutable((string) $sxe->ModifiedDate);
+        $this->modifiedBy = PartyItem::fromSimpleXMLElement($sxe->ModifiedBy);
+        $this->responsible = PartyItem::fromSimpleXMLElement($sxe->Responsible);
+
+        return $this;
     }
 
     #[\Override]
-    static function fromSimpleXMLElement(\SimpleXMLElement $sxe)
-    {
-        return new self(
-            id: (int) $sxe->Id,
-            matterNumber: (string) $sxe->MatterNumber,
-            title: (string) $sxe->Title,
-            createdDate: new \DateTimeImmutable((string) $sxe->CreatedDate),
-            modifiedDate: new \DateTimeImmutable((string) $sxe->ModifiedDate),
-            modifiedBy: PartyItem::fromSimpleXMLElement($sxe->ModifiedBy),
-            responsible: PartyItem::fromSimpleXMLElement($sxe->Responsible),
-        );
-    }
-
-    public function __toString()
+    public function __toString(): string
     {
         return sprintf('Matter %s: %s', $this->matterNumber, $this->matterNumber);
     }
 
+    #[\Override]
     public function jsonSerialize(): array
     {
         return [
-            'id' => $this->id,
             'matterNumber' => $this->matterNumber,
             'title' => $this->title,
             'createdDate' => $this->createdDate,
             'modifiedDate' => $this->modifiedDate,
             'modifiedBy' => $this->modifiedBy->jsonSerialize(),
             'responsible' => $this->responsible->jsonSerialize(),
-        ];
+        ] + parent::jsonSerialize();
     }
 }

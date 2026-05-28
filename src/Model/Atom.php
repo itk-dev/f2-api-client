@@ -6,30 +6,29 @@ namespace ItkDev\F2ApiClient\Model;
 
 final class Atom extends AbstractItem
 {
-    public function __construct(
-        protected string $id,
-        protected string $title,
-        protected \DateTimeImmutable $published,
-        protected \DateTimeImmutable $updated,
-    )
+    public string $id;
+    public string $title;
+    public \DateTimeImmutable $published;
+    public \DateTimeImmutable $updated;
+
+    #[\Override]
+    public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
+        $this->id = (string) $sxe->id;
+        $this->title = (string) $sxe->title;
+        $this->published = new \DateTimeImmutable((string) $sxe->published);
+        $this->updated = new \DateTimeImmutable((string) $sxe->updated);
+
+        return $this;
     }
 
-    public static function fromSimpleXMLElement(\SimpleXMLElement $sxe)
-    {
-        return new self(
-            id: (string) $sxe->id,
-            title: (string) $sxe->title,
-            published: new \DateTimeImmutable((string) $sxe->published),
-            updated: new \DateTimeImmutable((string) $sxe->updated),
-        );
-    }
-
+    #[\Override]
     public function __toString(): string
     {
         return sprintf('%s (%s)', $this->title, $this->id);
     }
 
+    #[\Override]
     public function jsonSerialize(): array
     {
         return [
