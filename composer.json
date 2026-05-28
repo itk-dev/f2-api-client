@@ -2,5 +2,40 @@
     "name": "itk-dev/f2-api-client",
     "description": "F2 API client",
     "license": "MIT",
-    "type": "library"
+    "type": "library",
+    "require": {
+        "ext-simplexml": "*",
+        "psr/cache": "^2.0 || ^3.0",
+        "symfony/cache": "^6.4 || ^7.4",
+        "symfony/console": "^6.4 || ^7.4",
+        "symfony/http-client": "^6.4 || ^7.4",
+        "symfony/http-foundation": "^6.4 || ^7.4",
+        "symfony/options-resolver": "^6.4 || ^7.4"
+    },
+    "require-dev": {
+        "php": "^8.3",
+        "ergebnis/composer-normalize": "^2.52",
+        "friendsofphp/php-cs-fixer": "^3.95"
+    },
+    "autoload": {
+        "psr-4": {
+            "ItkDev\\F2ApiClient\\": "src/"
+        }
+    },
+    "bin": [
+        "bin/f2-api-client"
+    ],
+    "config": {
+        "allow-plugins": {
+            "ergebnis/composer-normalize": true
+        }
+    },
+    "scripts": {
+        "post-update-cmd": [
+            "@php composer normalize"
+        ],
+        "post-require": [
+            "@php composer normalize"
+        ]
+    }
 }
