@@ -16,15 +16,14 @@ final class Matter extends AbstractItem
         public readonly PartyItem $responsible,
     )
     {
-
     }
 
     #[\Override]
     static function fromSimpleXMLElement(\SimpleXMLElement $sxe)
     {
         return new self(
-            id: (int)$sxe->Id,
-            matterNumber: (string)$sxe->MatterNumber,
+            id: (int) $sxe->Id,
+            matterNumber: (string) $sxe->MatterNumber,
             title: (string) $sxe->Title,
             createdDate: new \DateTimeImmutable((string) $sxe->CreatedDate),
             modifiedDate: new \DateTimeImmutable((string) $sxe->ModifiedDate),

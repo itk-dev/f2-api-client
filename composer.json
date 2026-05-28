@@ -5,6 +5,8 @@
     "type": "library",
     "require": {
         "ext-simplexml": "*",
+        "psr/cache": "^2.0 || ^3.0",
+        "symfony/cache": "^6.4 || ^7.4",
         "symfony/console": "^6.4 || ^7.4",
         "symfony/http-client": "^6.4 || ^7.4",
         "symfony/http-foundation": "^6.4 || ^7.4",

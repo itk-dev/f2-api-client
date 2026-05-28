@@ -9,6 +9,9 @@ use ItkDev\F2ApiClient\Exception\RuntimeException;
 use ItkDev\F2ApiClient\Model\Atom;
 use ItkDev\F2ApiClient\Model\CaseFile;
 use ItkDev\F2ApiClient\Model\Matter;
+use Psr\Cache\CacheItemInterface;
+use Psr\Cache\CacheItemPoolInterface;
+use Symfony\Component\Cache\Adapter\ProxyAdapter;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -40,18 +43,26 @@ class ApiClient
      */
     public function getServiceIndex(): array
     {
-        $path = '/F2Rest/ServiceIndex';
-        $response = $this->client()->request(Request::METHOD_GET, $path, [
-            'headers' => [
-                'Accept' => 'application/json',
-            ],
-        ]);
+        $cache = new ProxyAdapter(pool: $this->options['cache_item_pool']);
+        $cacheKey = sha1(__METHOD__);
 
-        return $response->toArray();
+        $result = $cache->get($cacheKey, function (CacheItemInterface $item): array {
+            $item->expiresAfter($this->options['cache_item_lifetime']);
+
+            $path = '/F2Rest/ServiceIndex';
+            $response = $this->client()->request(Request::METHOD_GET, $path, [
+                'headers' => [
+                    'Accept' => 'application/json',
+                ],
+            ]);
+
+            return $response->toArray();
+        });
+
+        return $result;
     }
 
     /**
-     * @param array{q: string, count: int} $query
      * @return Atom[]
      *
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
@@ -59,26 +70,15 @@ class ApiClient
      * @throws \Symfony\Contracts\HttpClient\Exception\ServerExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\TransportExceptionInterface
      */
-    public function caseSearch(string $q, int $count = 10): array
+    public function caseSearch(string $searchTerms, int $count = 10): array
     {
         $query = [
-            'q' => $q,
+            'searchTerms' => $searchTerms,
             'count' => $count,
         ];
-        $path = '/F2Rest/search/cases';
-        // @todo  /F2Rest/ServiceIndex.json reports
-        //
-        // "http://cbrain.com/casefile/rel/case-search": {
-        //   "href": "/F2Rest/search/cases",
-        //   "title": "Case file search"
-        // },
-        //
-        // which refers to the actual search URL: /F2Rest/searches/cases
-        $path = '/F2Rest/searches/cases';
-        //        $path = $this->getRequestUrl('http://cbrain.com/casefile/rel/case-search');
-        $response = $this->request(Request::METHOD_GET, $path, [
-            'query' => $query,
-        ]);
+
+        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/case-search', $query, isSearch: true);
+        $response = $this->request(Request::METHOD_GET, $url);
 
         $items = [];
         $sxe = new \SimpleXMLElement($response->getContent());
@@ -106,25 +106,12 @@ class ApiClient
     public function matterSearch(string $searchTerms, int $count = 10): array
     {
         $query = [
-          'searchTerms' => $searchTerms,
-          'count' => $count,
+            'searchTerms' => $searchTerms,
+            'count' => $count,
         ];
-        // @todo  /F2Rest/ServiceIndex.json reports
-        //
-        // "http://cbrain.com/casefile/rel/case-search": {
-        //   "href": "/F2Rest/search/cases",
-        //   "title": "Case file search"
-        // },
-        //
-        // which refers to the actual search URL: /F2Rest/searches/cases
-        $url = '/F2Rest/searches/matters';
-        $url = '/F2Rest/searches/matters?q={searchTerms}&count={count}';
-        $url = $this->replacePlaceholders($url, $query);
-//        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-search', [
-//        ]);
-        $response = $this->request(Request::METHOD_GET, $url, [
-            'query' => $query,
-        ]);
+
+        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-search', $query, isSearch: true);
+        $response = $this->request(Request::METHOD_GET, $url);
 
         $items = [];
         $sxe = new \SimpleXMLElement($response->getContent());
@@ -162,7 +149,6 @@ class ApiClient
 
         return Matter::fromSimpleXMLElement(new \SimpleXMLElement($response->getContent()));
     }
-
 
     /**
      * @return array{access_token: string, token_type: string}
@@ -221,22 +207,49 @@ class ApiClient
 
     protected function configureOptions(OptionsResolver $resolver): void
     {
-        $resolver->setRequired([
-            'api_uri',
-            'api_username',
-            'api_secret',
-            'f2_username',
-        ]);
+        $resolver
+            ->setRequired([
+                'api_uri',
+                'api_username',
+                'api_secret',
+                'f2_username',
+            ])
+            ->setDefault('cache_item_lifetime', 86400)
+            ->setAllowedTypes('cache_item_lifetime', 'int')
+            ->setRequired('cache_item_pool')
+            ->setAllowedTypes('cache_item_pool', CacheItemPoolInterface::class);
     }
 
-    protected function getRequestUrl(string $rel, array $values): string
+    protected function getRequestUrl(string $rel, array $values, bool $isSearch = false): string
     {
-        // @todo Cache this!
         $index = $this->getServiceIndex();
 
         $url = $index[$rel]['href'] ?? null;
         if (null === $url) {
             throw new RuntimeException(sprintf('Cannot get rel %s', $rel));
+        }
+
+        if ($isSearch) {
+            try {
+                $cache = new ProxyAdapter(pool: $this->options['cache_item_pool']);
+                $cacheKey = sha1(__METHOD__ . '|||' . $rel);
+
+                $url = $cache->get($cacheKey, function (CacheItemInterface $item) use ($url) {
+                    $item->expiresAfter($this->options['cache_item_lifetime']);
+
+                    $response = $this->request(Request::METHOD_GET, $url);
+                    $sxe = new \SimpleXMLElement($response->getContent());
+
+                    $searchUrl = (string) $sxe->Url['template'];
+                    if (empty($searchUrl)) {
+                        throw new RuntimeException(sprintf('Cannot get search template URL for %s', $url));
+                    }
+
+                    return $searchUrl;
+                });
+            } catch (\Exception $e) {
+                throw new RuntimeException(sprintf('Cannot get search URL for rel %s', $rel), previous: $e);
+            }
         }
 
         return $this->replacePlaceholders($url, $values);
@@ -253,7 +266,7 @@ class ApiClient
                     throw new RuntimeException(sprintf('Missing value %s for URL %s', $name, $url));
                 }
 
-                return rawurlencode((string)$values[$name]);
+                return rawurlencode((string) $values[$name]);
             },
             $url,
         );

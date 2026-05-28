@@ -5,12 +5,14 @@ declare(strict_types=1);
 namespace ItkDev\F2ApiClient\Command;
 
 use ItkDev\F2ApiClient\Client\ApiClient;
+use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Component\Filesystem\Filesystem;
 
 #[AsCommand(name: 'f2:api:client')]
 class F2ApiClientCommand
@@ -42,7 +44,10 @@ class F2ApiClientCommand
             default => throw new InvalidArgumentException(sprintf('Invalid action: %s', $action)),
         };
 
-        $io->writeln((string) json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE));
+        $io->writeln((string) json_encode(
+            $response,
+            JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE,
+        ));
 
         return Command::SUCCESS;
     }
@@ -63,6 +68,8 @@ class F2ApiClientCommand
             'api_username' => $getEnv('F2_API_USERNAME'),
             'api_secret' => $getEnv('F2_API_SECRET'),
             'f2_username' => $getEnv('F2_F2_USERNAME'),
+
+            'cache_item_pool' => new FilesystemAdapter(),
         ];
 
         return new ApiClient($config);
