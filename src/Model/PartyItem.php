@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-use Symfony\Contracts\HttpClient\ResponseInterface;
-
 final class PartyItem extends AbstractItem
 {
     /**
@@ -36,16 +34,13 @@ final class PartyItem extends AbstractItem
         // int
         // Internal identiﬁer of party - displayed in F2 party details window.
         public readonly int $partyNumber,
-
         // SynchronizationKey
         // string
         // Identiﬁer for synchronizing parties with external repositories such as Windows
         // Active Directory.
-
         // CPRCVR
         // string
         // Personal security number or VAT number.
-
         // CVR_P
         // string
         // Danish P-number extension to CVR (VAT) number.

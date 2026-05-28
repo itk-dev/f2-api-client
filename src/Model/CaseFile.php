@@ -44,17 +44,16 @@ final class CaseFile extends AbstractItem
         // PartyItem
         // The party who is responsible for the case.
         public readonly PartyItem $responsible,
-
         // Link
         // List of Link (read-only)
         // One or more links to other related resources.
-
         // Matters
         // List of Matter
         // List of all accessible matters on the case.
         // /** @var Matter[] */
         // public readonly array $matters,
-    ) {
+    )
+    {
     }
 
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe)

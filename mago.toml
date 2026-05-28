@@ -34,6 +34,16 @@ ambiguous-function-call = { enabled = false }
 literal-named-argument = { enabled = false }
 halstead = { effort-threshold = 7000 }
 
+# Our Model classes have a lot of constructor arguments.
+excessive-parameter-list = {
+  constructor-threshold = 10
+}
+
+# Our API client has many methods.
+too-many-methods = {
+  threshold = 20
+}
+
 [analyzer]
 plugins = []
 find-unused-definitions = true
