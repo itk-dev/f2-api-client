@@ -20,6 +20,8 @@ F2_API_URI=
 F2_API_USERNAME=
 F2_API_SECRET=
 F2_F2_USERNAME=
+
+F2_API_TIME_ZONE=
 ```
 
 Run
@@ -54,8 +56,8 @@ task f2-api-client:run -- caseById 2204
 For development (and testing) a couple of useful tasks are defined:
 
 ``` text
-* f2-api-client:debug:       Debug bin/f2-api-client inside docker compose setup, e.g. `task f2-api-client:debug -- searchCases '{"q": "test", "count": 10}'`
-* f2-api-client:run:         Run bin/f2-api-client inside docker compose setup, e.g. `task f2-api-client:run -- searchCases '{"q": "test", "count": 10}'`
+* f2-api-client:run:         Run bin/f2-api-client inside docker compose setup, e.g. `task f2-api-client:run -- caseSearch 'test'`
+* f2-api-client:debug:       Debug bin/f2-api-client inside docker compose setup, e.g. `task f2-api-client:debug -- caseSearch 'test'`
 ```
 
 ### F2 REST documentation

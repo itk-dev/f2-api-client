@@ -87,7 +87,7 @@ class ApiClient
         return $this->createSearchResult($response);
     }
 
-    public function caseById(string $id): CaseFile
+    public function caseById(int $id): CaseFile
     {
         $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/case-by-id', [
             'id' => $id,
@@ -114,7 +114,7 @@ class ApiClient
         return $this->createSearchResult($response);
     }
 
-    public function matterById(string $id): Matter
+    public function matterById(int $id): Matter
     {
         $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-by-id', [
             'id' => $id,
@@ -142,7 +142,7 @@ class ApiClient
         return $this->createItemResult($response, Matter::class);
     }
 
-    public function documentById(string $id): Document
+    public function documentById(int $id): Document
     {
         $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/document-by-id', [
             'id' => $id,
@@ -229,7 +229,7 @@ class ApiClient
             ->setAllowedTypes('cache_item_pool', CacheItemPoolInterface::class);
     }
 
-    protected function getRequestUrl(string $rel, array $values): string
+    protected function getRequestUrl(string $rel, array $values = []): string
     {
         $index = $this->getServiceIndex();
 

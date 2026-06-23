@@ -34,11 +34,11 @@ class F2ApiClientCommand
         $response = match ($action) {
             'getServiceIndex' => $client->getServiceIndex(),
             'caseSearch' => $client->caseSearch((string) $arg),
-            'caseById' => $client->caseById((string) $arg),
+            'caseById' => $client->caseById((int) $arg),
             'matterSearch' => $client->matterSearch((string) $arg),
-            'matterById' => $client->matterById((string) $arg),
+            'matterById' => $client->matterById((int) $arg),
             'matterByMatterNumber' => $client->matterByMatterNumber((string) $arg),
-            'documentById' => $client->documentById((string) $arg),
+            'documentById' => $client->documentById((int) $arg),
             default => throw new InvalidArgumentException(sprintf('Invalid action: %s', $action)),
         };
 

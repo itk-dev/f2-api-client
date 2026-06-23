@@ -6,7 +6,7 @@ namespace ItkDev\F2ApiClient\Model;
 
 use ItkDev\F2ApiClient\Model\F2Item\Links;
 
-abstract class F2Item extends AbstractItem
+abstract class F2Item extends AbstractItem implements \Stringable
 {
     public ?int $id = null;
     public ?Links $links = null;
