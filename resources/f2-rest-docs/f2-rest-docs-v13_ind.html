@@ -1,9 +1,28 @@
 <!DOCTYPE html><html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
 <head>
+<script>
+    addEventListener('load', () => {
+        // Add URL fragment to parent location when clicking links.
+        function setUrlFragment() {
+            const url = new URL(this.href)
+            console.log(url.hash)
+            parent.location.hash = url.hash
+        }
+
+        document.querySelectorAll('[href][target="contents"]').forEach(el => el.addEventListener('click', setUrlFragment))
+
+        // Click matching link when loading parent with URL fragment.
+        const hash = parent.document.location.hash
+        const link = document.querySelector(`[href$="${hash}"]`)
+        if (null !== link) {
+            link.click()
+        }
+    })
+</script>
 <title></title>
 </head>
 <body>
-<a href="f2-rest-docs-v13s.html#outline" target=\"contents\">Outline</a><br/><a href="f2-rest-docs-v13s.html#1" target="contents" >Page 1</a><br/>
+<a href="f2-rest-docs-v13s.html#outline" target="contents">Outline</a><br/><a href="f2-rest-docs-v13s.html#1" target="contents" >Page 1</a><br/>
 <a href="f2-rest-docs-v13s.html#2" target="contents" >Page 2</a><br/>
 <a href="f2-rest-docs-v13s.html#3" target="contents" >Page 3</a><br/>
 <a href="f2-rest-docs-v13s.html#4" target="contents" >Page 4</a><br/>

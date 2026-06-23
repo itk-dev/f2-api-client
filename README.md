@@ -58,6 +58,19 @@ For development (and testing) a couple of useful tasks are defined:
 * f2-api-client:run:         Run bin/f2-api-client inside docker compose setup, e.g. `task f2-api-client:run -- searchCases '{"q": "test", "count": 10}'`
 ```
 
+### F2 REST documentation
+
+The F2 REST documentation is available only as a PDF (!), but we need something we can refer to. Therefore, we convert
+[the PDF](resources/f2-rest-docs/f2-rest-docs-v13.pdf) to HTML and serve that.
+
+Run
+
+``` shell
+task f2-rest-docs:serve
+```
+
+and open <http://127.0.0.1:8787/>.
+
 ---
 
 ``` mermaid
