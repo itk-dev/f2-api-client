@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model\F2Item;
 
+use ItkDev\F2ApiClient\Exception\RuntimeException;
+
 /**
  * @phpstan-type Link array{rel: string, href: string, title:string}
  */
@@ -16,7 +18,7 @@ class Links implements \JsonSerializable
     {
     }
 
-    static function fromSimpleXMLElement(\SimpleXMLElement $sxe): self
+    public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): self
     {
         $links = [];
         foreach ($sxe->Link as $link) {
@@ -30,12 +32,25 @@ class Links implements \JsonSerializable
     }
 
     /**
-     * @param string $rel
      * @return Link
      */
-    public function getLink(string $rel): ?array
+    public function getLink(string $rel): array
     {
-        return $this->links[$rel] ?? null;
+        if (!array_key_exists($rel, $this->links)) {
+            throw new RuntimeException(sprintf('Cannot get link "%s"', $rel));
+        }
+
+        return $this->links[$rel];
+    }
+
+    public function getLinkUrl(string $rel): string
+    {
+        $link = $this->getLink($rel);
+        if (!array_key_exists('href', $link) || !is_string($link['href'])) {
+            throw new RuntimeException(sprintf('Cannot get URL for link "%s"', $rel));
+        }
+
+        return $link['href'];
     }
 
     #[\Override]

@@ -142,6 +142,55 @@ class ApiClient
         return $this->createItemResult($response, Matter::class);
     }
 
+    public function matterCreate(array $matterData, ?CaseFile $case = null): Matter
+    {
+        $linkName = 'http://cbrain.com/casefile/rel/create-matter';
+        $url = null !== $case ? $case->links->getLinkUrl($linkName) : $this->getRequestUrl($linkName);
+
+        // The documentation is unclear on this POE stuff. Does it return 303 or 201?
+        // resources/f2-rest-docs/f2-rest-docs-v13s.html#11
+        $response = $this->request(Request::METHOD_POST, $url);
+        if (Response::HTTP_CREATED !== $response->getStatusCode()) {
+            $message = null !== $case
+                ? sprintf('Cannot get matter create POE URL for case %s', $case)
+                : 'Cannot get matter create POE URLs';
+            throw new RuntimeException($message);
+        }
+        try {
+            $location = $this->getHeader('location', $response);
+        } catch (\Exception $e) {
+            $message = null !== $case
+                ? sprintf('Cannot get matter create POE URL for case %s', $case)
+                : 'Cannot get matter create POE URLs';
+            throw new RuntimeException($message, previous: $e);
+        }
+
+        $response = $this->request(Request::METHOD_POST, $location, [
+            'json' => $matterData,
+        ]);
+
+        if (Response::HTTP_CREATED !== $response->getStatusCode()) {
+            $message = null !== $case ? sprintf('Cannot create matter for case %s', $case) : 'Cannot create matter';
+            throw new RuntimeException($message);
+        }
+
+        return $this->createItemResult($response, Matter::class);
+    }
+
+    /**
+     * Get header value.
+     */
+    private function getHeader(string $name, ResponseInterface $response): string
+    {
+        $headers = $response->getHeaders();
+        $name = strtolower($name);
+        if (!array_key_exists($name, $headers)) {
+            throw new RuntimeException(sprintf('Header "%s" not found.', $name));
+        }
+
+        return reset($headers[$name]);
+    }
+
     public function documentById(int $id): Document
     {
         $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/document-by-id', [
