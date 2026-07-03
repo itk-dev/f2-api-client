@@ -1,4 +1,7 @@
-name: Mago
+name: Code analysis
+
+env:
+    COMPOSE_USER: runner
 
 on:
     pull_request:
@@ -13,12 +16,10 @@ jobs:
         strategy:
             fail-fast: false
         steps:
-            - uses: actions/checkout@v5
-
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - uses: actions/checkout@v7
 
             - run: |
                   docker compose run --rm phpfpm composer install
+
+            - run: |
                   docker compose run --rm phpfpm php vendor/bin/phpstan

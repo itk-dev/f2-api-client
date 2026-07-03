@@ -1,5 +1,8 @@
 name: Mago
 
+env:
+    COMPOSE_USER: runner
+
 on:
     pull_request:
     push:
@@ -13,11 +16,10 @@ jobs:
         name: Mago
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
 
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - run: |
+                  docker compose run --rm phpfpm composer install
 
             - run: |
                   docker compose run --rm mago lint
@@ -26,11 +28,10 @@ jobs:
         name: Mago - format
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
 
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - run: |
+                  docker compose run --rm phpfpm composer install
 
             - run: |
                   docker compose run --rm mago format --check
@@ -39,11 +40,10 @@ jobs:
         name: Mago - analyze
         runs-on: ubuntu-latest
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
 
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - run: |
+                  docker compose run --rm phpfpm composer install
 
             - run: |
                   docker compose run --rm mago analyze

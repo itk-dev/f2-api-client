@@ -41,11 +41,10 @@ jobs:
         strategy:
             fail-fast: false
         steps:
-            - uses: actions/checkout@v5
+            - uses: actions/checkout@v7
 
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - run: |
+                  docker compose run --rm phpfpm composer install
 
             - run: |
                   docker compose run --rm phpfpm composer validate --strict
@@ -55,23 +54,12 @@ jobs:
         strategy:
             fail-fast: false
         steps:
-            - uses: actions/checkout@v5
-
-            # https://github.com/mxschmitt/action-tmate?tab=readme-ov-file#manually-triggered-debug
-            # Enable tmate debugging if debug logging is enabled (cf.
-            # https://docs.github.com/en/actions/writing-workflows/choosing-what-your-workflow-does/accessing-contextual-information-about-workflow-runs#runner-context)
-            - name: Setup tmate session
-              uses: mxschmitt/action-tmate@v3
-              with:
-                  limit-access-to-actor: false
-              if: 1 == runner.debug
-
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - uses: actions/checkout@v7
 
             - run: |
                   docker compose run --rm phpfpm composer install
+
+            - run: |
                   docker compose run --rm phpfpm composer normalize --dry-run
 
     composer-audit:
@@ -79,11 +67,10 @@ jobs:
         strategy:
             fail-fast: false
         steps:
-            - uses: actions/checkout@v5
-
-            - name: Create docker network
-              run: |
-                  docker network create frontend
+            - uses: actions/checkout@v7
 
             - run: |
-                  docker compose run --rm phpfpm composer audit
+                  docker compose run --rm phpfpm composer install
+
+            - run: |
+                  docker compose run --rm phpfpm composer audit --locked
