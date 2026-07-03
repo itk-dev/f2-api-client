@@ -97,6 +97,18 @@ tasks:
       vars:
         TASK_ARGS: run --rm prettier '**/*.{yml,yaml}' --check
 
+  code-analysis:php:
+    - task: code-analysis:php:mago
+    - task: code-analysis:php:phpstan
+
+  code-analysis:php:mago:
+    - task: mago:analyze
+
+  code-analysis:php:phpstan:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm vendor/bin/phpstan
+
   # https://mago.carthage.software/latest/en/guide/getting-started/
   mago:run:
     desc: 'Run all Mago steps (cf. https://mago.carthage.software/latest/en/guide/getting-started/)'
