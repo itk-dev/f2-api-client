@@ -9,7 +9,7 @@ final class Matter extends F2Item
     // resources/f2-rest-docs/f2-rest-docs-v13s.html#65
     public const string TYPE_INTERNAL = 'Internal';
     public const string TYPE_INBOUND = 'Inbound';
-    public const string TYPE_OUTBOUND= 'Outbound';
+    public const string TYPE_OUTBOUND = 'Outbound';
 
     public string $matterNumber;
     public string $title;
@@ -27,8 +27,8 @@ final class Matter extends F2Item
         $this->id = (int) $sxe->Id;
         $this->matterNumber = (string) $sxe->MatterNumber;
         $this->title = (string) $sxe->Title;
-        $this->createdDate = new \DateTimeImmutable((string) $sxe->CreatedDate);
-        $this->modifiedDate = new \DateTimeImmutable((string) $sxe->ModifiedDate);
+        $this->createdDate = $this->createDateTime($sxe->CreatedDate);
+        $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
         $this->createdBy = PartyItem::fromSimpleXMLElement($sxe->CreatedBy);
         $this->modifiedBy = PartyItem::fromSimpleXMLElement($sxe->ModifiedBy);
         $this->responsible = $sxe->Responsible ? PartyItem::fromSimpleXMLElement($sxe->Responsible) : null;

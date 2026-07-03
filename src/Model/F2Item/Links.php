@@ -14,8 +14,7 @@ class Links implements \JsonSerializable
     public function __construct(
         /** @var array<string, Link> */
         private readonly array $links,
-    )
-    {
+    ) {
     }
 
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): self

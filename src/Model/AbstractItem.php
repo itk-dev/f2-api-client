@@ -28,4 +28,15 @@ abstract class AbstractItem implements \JsonSerializable, \Stringable
 
         return $items;
     }
+
+    protected function createDateTime(\SimpleXMLElement|string $value): ?\DateTimeImmutable
+    {
+        $value = trim((string) $value);
+        if ('' !== $value) {
+            // @todo Adjust for time zones!
+            return new \DateTimeImmutable($value);
+        }
+
+        return null;
+    }
 }

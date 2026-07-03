@@ -11,10 +11,14 @@ final class CaseFile extends F2Item
     public string $caseNumber;
 
     public string $title;
+    public bool $closed;
+    public JournalPlan $journalPlan;
+    public ProcessInstruction $processInstruction;
+    public ?\DateTimeImmutable $deadline;
     public \DateTimeImmutable $createdDate;
     public \DateTimeImmutable $modifiedDate;
     public PartyItem $modifiedBy;
-    public PartyItem $responsible;
+    public ?PartyItem $responsible;
 
     // Link
     // List of Link (read-only)
@@ -32,10 +36,14 @@ final class CaseFile extends F2Item
         $this->id = (int) $sxe->Id;
         $this->caseNumber = (string) $sxe->CaseNumber;
         $this->title = (string) $sxe->Title;
-        $this->createdDate = new \DateTimeImmutable((string) $sxe->CreatedDate);
-        $this->modifiedDate = new \DateTimeImmutable((string) $sxe->ModifiedDate);
+        $this->closed = 'true' === (string) $sxe->Closed;
+        $this->journalPlan = JournalPlan::fromSimpleXMLElement($sxe->JournalPlan);
+        $this->processInstruction = ProcessInstruction::fromSimpleXMLElement($sxe->ProcessInstruction);
+        $this->deadline = $this->createDateTime($sxe->Deadline);
+        $this->createdDate = $this->createDateTime($sxe->CreatedDate);
+        $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
         $this->modifiedBy = PartyItem::fromSimpleXMLElement($sxe->ModifiedBy);
-        $this->responsible = PartyItem::fromSimpleXMLElement($sxe->Responsible);
+        $this->responsible = $sxe->Responsible ? PartyItem::fromSimpleXMLElement($sxe->Responsible) : null;
 
         $this->matters = static::listOf(Matter::class, $sxe->Matters);
 
@@ -54,11 +62,15 @@ final class CaseFile extends F2Item
         return [
             'caseNumber' => $this->caseNumber,
             'title' => $this->title,
+            'closed' => $this->closed,
+            'journalPlan' => $this->journalPlan->jsonSerialize(),
+            'processInstruction' => $this->processInstruction->jsonSerialize(),
+            'deadline' => $this->deadline,
             'createdDate' => $this->createdDate,
             'modifiedDate' => $this->modifiedDate,
             'modifiedBy' => $this->modifiedBy->jsonSerialize(),
-            'responsible' => $this->responsible->jsonSerialize(),
-            'matters' => array_map(static fn(Matter $matter) => $matter->jsonSerialize(), $this->matters),
+            'responsible' => $this->responsible?->jsonSerialize(),
+            'matters' => array_map(static fn (Matter $matter) => $matter->jsonSerialize(), $this->matters),
         ] + parent::jsonSerialize();
     }
 }

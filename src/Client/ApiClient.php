@@ -13,6 +13,8 @@ use ItkDev\F2ApiClient\Model\Document;
 use ItkDev\F2ApiClient\Model\Matter;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
+use Psr\Log\LoggerAwareTrait;
+use Psr\Log\LoggerTrait;
 use Symfony\Component\Cache\Adapter\ProxyAdapter;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
@@ -27,6 +29,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  */
 class ApiClient
 {
+    use LoggerAwareTrait;
+    use LoggerTrait;
+
     private readonly array $options;
     private ?HttpClientInterface $client = null;
 
@@ -101,6 +106,38 @@ class ApiClient
         return $this->createItemResult($response, CaseFile::class);
     }
 
+    public function caseCreate(array $caseData): CaseFile
+    {
+        $linkName = 'http://cbrain.com/casefile/rel/create-case';
+        $url = $this->getRequestUrl($linkName);
+
+        // The documentation is unclear on this POE stuff. Does it return 303 or 201?
+        // resources/f2-rest-docs/f2-rest-docs-v13s.html#11
+        $response = $this->request(Request::METHOD_POST, $url);
+        if (Response::HTTP_CREATED !== $response->getStatusCode()) {
+            $message = 'Cannot get case create POE URLs';
+            throw new RuntimeException($message);
+        }
+        try {
+            $location = $this->getHeader('location', $response);
+        } catch (\Exception $e) {
+            $message = 'Cannot get case create POE URLs';
+            throw new RuntimeException($message, previous: $e);
+        }
+
+        $response = $this->request(Request::METHOD_POST, $location, [
+            'json' => $caseData,
+        ]);
+
+        if (Response::HTTP_CREATED !== $response->getStatusCode()) {
+            // @TODO Log stuff.
+            $message = 'Cannot create case';
+            throw new RuntimeException($message);
+        }
+
+        return $this->createItemResult($response, CaseFile::class);
+    }
+
     public function matterSearch(string $searchTerms, int $count = 10): array
     {
         $query = [
@@ -170,7 +207,9 @@ class ApiClient
         ]);
 
         if (Response::HTTP_CREATED !== $response->getStatusCode()) {
-            $message = null !== $case ? sprintf('Cannot create matter for case %s', $case) : 'Cannot create matter';
+            $message = null !== $case
+                ? sprintf('Cannot create matter for case %s', $case)
+                : 'Cannot create matter';
             throw new RuntimeException($message);
         }
 
@@ -242,14 +281,36 @@ class ApiClient
     {
         $accessToken = $this->getAccessToken();
 
-        return $this->client()->request(
-            $method,
-            $path,
-            $options
-            + [
-                'auth_bearer' => $accessToken['access_token'],
+        try {
+            $response = $this->client()->request(
+                $method,
+                $path,
+                $options
+                + [
+                    'auth_bearer' => $accessToken['access_token'],
+                ],
+            );
+        } catch (\Exception $exception) {
+            $this->error('Request error: {message}', [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
+            throw $exception;
+        }
+
+        $this->debug('request: {data}', ['data' => json_encode([
+            'method' => $method,
+            'path' => $path,
+            'options' => $options,
+            'response' => [
+                'status_code' => $response->getStatusCode(),
+                'headers' => $response->getHeaders(false),
+                'content' => $response->getContent(false),
             ],
+        ], JSON_PRETTY_PRINT)]
         );
+
+        return $response;
     }
 
     protected function client(): HttpClientInterface
@@ -296,7 +357,7 @@ class ApiClient
 
         try {
             $cache = $this->getCache();
-            $cacheKey = sha1(__METHOD__ . '|||' . $rel);
+            $cacheKey = sha1(__METHOD__.'|||'.$rel);
 
             $url = $cache->get($cacheKey, function (CacheItemInterface $item) use ($url) {
                 $item->expiresAfter((int) $this->options['cache_item_lifetime']);
@@ -372,5 +433,13 @@ class ApiClient
     protected function createItemResult(ResponseInterface $response, string $class): AbstractItem
     {
         return $class::fromSimpleXMLElement(new \SimpleXMLElement($response->getContent()));
+    }
+
+    public function log($level, \Stringable|string $message, array $context = []): void
+    {
+        if (null !== $this->logger) {
+            $message = '[F2 API client] '.$message;
+            $this->logger->log($level, $message, $context);
+        }
     }
 }

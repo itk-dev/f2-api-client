@@ -16,8 +16,8 @@ final class Atom extends AbstractItem
     {
         $this->id = (string) $sxe->id;
         $this->title = (string) $sxe->title;
-        $this->published = new \DateTimeImmutable((string) $sxe->published);
-        $this->updated = new \DateTimeImmutable((string) $sxe->updated);
+        $this->published = $this->createDateTime($sxe->published);
+        $this->updated = $this->createDateTime($sxe->updated);
 
         return $this;
     }

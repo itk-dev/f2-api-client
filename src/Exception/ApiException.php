@@ -10,8 +10,7 @@ class ApiException extends RuntimeException
 {
     public function __construct(
         private readonly ResponseInterface $response,
-    )
-    {
+    ) {
         // @see resources/f2-rest-docs/f2-rest-docs-v13s.html#16
         /*
          * Error handling

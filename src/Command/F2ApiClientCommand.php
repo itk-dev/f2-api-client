@@ -12,6 +12,7 @@ use Symfony\Component\Console\Attribute\Option;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
 use Symfony\Component\Console\Exception\RuntimeException;
+use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'f2:api:client')]
@@ -27,9 +28,9 @@ class F2ApiClientCommand
         bool $showLinks = false,
         #[Option(description: 'Path to to cache directory. If not specified, no requests will be cached.')]
         ?string $cacheDirectory = null,
-    ): int
-    {
+    ): int {
         $client = $this->createClient(cacheDirectory: $cacheDirectory);
+        $client->setLogger(new ConsoleLogger($io));
 
         $response = match ($action) {
             'getServiceIndex' => $client->getServiceIndex(),
