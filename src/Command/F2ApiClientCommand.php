@@ -82,7 +82,7 @@ class F2ApiClientCommand
     }
 
     /**
-     * @return array<string, mixed>
+     * @return array<array-key, mixed>
      */
     private function responseToArray(array|AbstractItem $response): array
     {

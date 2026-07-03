@@ -28,14 +28,14 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  * @phpstan-type AccessToken array{access_token: string, token_type: string, expires_in: int, refresh_token: string}
  * @phpstan-type ServiceIndex array<string, array{href: string, title: string}>
  * @phpstan-type OptionsInput array{
- *   api_uri: non-empty-string,
- *   api_username: non-empty-string,
- *   api_secret: non-empty-string,
- *   f2_username: non-empty-string,
+ *   api_uri: string,
+ *   api_username: string,
+ *   api_secret: string,
+ *   f2_username: string,
  *   cache_item_pool: CacheItemPoolInterface,
  *   cache_item_lifetime?: int,
  * }
- * @phpstan-type Options array{
+ * @phpstan-type OptionsResolved array{
  *    api_uri: non-empty-string,
  *    api_username: non-empty-string,
  *    api_secret: non-empty-string,
@@ -48,7 +48,7 @@ class ApiClient
     use LoggerAwareTrait;
     use LoggerTrait;
 
-    /** @var Options */
+    /** @var OptionsResolved */
     private readonly array $options;
 
     private ?HttpClientInterface $client = null;
@@ -61,7 +61,9 @@ class ApiClient
         $resolver = new OptionsResolver();
         $this->configureOptions($resolver);
 
-        $this->options = $resolver->resolve($options);
+        /** @var OptionsResolved $options */
+        $options = $resolver->resolve($options);
+        $this->options = $options;
     }
 
     /**
@@ -78,6 +80,7 @@ class ApiClient
         $cache = $this->getCache();
         $cacheKey = sha1(__METHOD__);
 
+        // @mago-ignore analysis:less-specific-return-statement
         return $cache->get($cacheKey, function (CacheItemInterface $item): array {
             $item->expiresAfter((int) $this->options['cache_item_lifetime']);
 
@@ -455,7 +458,6 @@ class ApiClient
 
     protected function getCache(): CacheInterface
     {
-        /** @var CacheItemPoolInterface $pool */
         $pool = $this->options['cache_item_pool'];
 
         return new ProxyAdapter(pool: $pool);
@@ -491,7 +493,7 @@ class ApiClient
     {
         $item = new \SimpleXMLElement($response->getContent());
 
-        /* @var T */
+        // @mago-ignore analysis:invalid-return-statement
         return $class::fromSimpleXMLElement($item);
     }
 
