@@ -1,0 +1,24 @@
+name: Mago
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+            - develop
+
+jobs:
+    code-analysis-php:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+        steps:
+            - uses: actions/checkout@v5
+
+            - name: Create docker network
+              run: |
+                  docker network create frontend
+
+            - run: |
+                  docker compose run --rm phpfpm composer install
+                  docker compose run --rm phpfpm php vendor/bin/phpstan
