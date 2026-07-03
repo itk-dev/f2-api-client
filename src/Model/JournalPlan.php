@@ -25,11 +25,12 @@ final class JournalPlan extends F2Item
     #[\Override]
     public function jsonSerialize(): array
     {
-        $serialized = [
-            'title' => $this->title,
-            'path' => $this->path,
-            'code' => $this->code,
-        ] + parent::jsonSerialize();
+        $serialized =
+            [
+                'title' => $this->title,
+                'path' => $this->path,
+                'code' => $this->code,
+            ] + parent::jsonSerialize();
 
         // JournalPlan doesn't have an ID.
         unset($serialized['id']);

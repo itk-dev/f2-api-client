@@ -1,6 +1,6 @@
-#:schema https://mago.carthage.software/1.27.1/schema.json
+#:schema https://mago.carthage.software/1.42.0/schema.json
 # Welcome to Mago!
-# For full documentation, see https://mago.carthage.software/tools/overview
+# For full documentation, see https://mago.carthage.software/1.42.0/en/tools/overview/
 version = "1"
 php-version = "8.3.0"
 
@@ -20,19 +20,28 @@ use-tabs = false
 
 # php-cs-fixer likes these
 empty-line-before-return = true
-method-brace-style = "always-next-line"
 
-# https://mago.carthage.software/latest/en/tools/formatter/configuration-reference/#empty-bodies
+space-around-concatenation-binary-operator = false
+# empty-line-after-class-like-open=true
+# method-brace-style = "always-next-line"
 inline-empty-constructor-braces = false
+space-before-arrow-function-parameter-list-parenthesis = true
 inline-empty-classlike-braces = false
+preserve-breaking-parameter-list = true
+preserve-breaking-argument-list = true
+preserve-breaking-conditional-expression = true
 
 [linter]
-integrations = []
+integrations = ["symfony"]
 
 [linter.rules]
 ambiguous-function-call = { enabled = false }
+no-boolean-flag-parameter = { enabled = false }
 literal-named-argument = { enabled = false }
-halstead = { effort-threshold = 7000 }
+halstead = {
+  effort-threshold = 7000,
+  difficulty-threshold = 22
+}
 
 # Our Model classes have a lot of constructor arguments.
 excessive-parameter-list = {
@@ -41,7 +50,16 @@ excessive-parameter-list = {
 
 # Our API client has many methods.
 too-many-methods = {
-  threshold = 20
+  threshold = 30
+}
+
+# Our API client is not really that complex …
+cyclomatic-complexity = {
+  threshold = 30
+}
+
+too-many-properties = {
+  threshold = 11
 }
 
 [analyzer]

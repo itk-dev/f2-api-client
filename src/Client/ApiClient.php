@@ -100,7 +100,7 @@ class ApiClient
         $response = $this->request(Request::METHOD_GET, $url);
 
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw $this - createApiException($response);
+            throw $this->createApiException($response);
         }
 
         return $this->createItemResult($response, CaseFile::class);
@@ -257,9 +257,10 @@ class ApiClient
 
         try {
             $response = $this->request(Request::METHOD_POST, $location, [
-                'body' => $documentData + [
-                    'File' => $fileHandle,
-                ],
+                'body' => $documentData
+                    + [
+                        'File' => $fileHandle,
+                    ],
             ]);
         } finally {
             fclose($fileHandle);
@@ -327,17 +328,18 @@ class ApiClient
             throw $exception;
         }
 
-        $this->debug('request: {data}', ['data' => json_encode([
-            'method' => $method,
-            'path' => $path,
-            'options' => $options,
-            'response' => [
-                'status_code' => $response->getStatusCode(),
-                'headers' => $response->getHeaders(false),
-                'content' => $response->getContent(false),
-            ],
-        ], JSON_PRETTY_PRINT)]
-        );
+        $this->debug('request: {data}', [
+            'data' => json_encode([
+                'method' => $method,
+                'path' => $path,
+                'options' => $options,
+                'response' => [
+                    'status_code' => $response->getStatusCode(),
+                    'headers' => $response->getHeaders(false),
+                    'content' => $response->getContent(false),
+                ],
+            ], JSON_PRETTY_PRINT),
+        ]);
 
         return $response;
     }
@@ -467,7 +469,7 @@ class ApiClient
     public function log($level, \Stringable|string $message, array $context = []): void
     {
         if (null !== $this->logger) {
-            $message = '[F2 API client] '.$message;
+            $message = '[F2 API client] '.(string) $message;
             $this->logger->log($level, $message, $context);
         }
     }
@@ -493,8 +495,11 @@ class ApiClient
         return $this->logException($exception);
     }
 
-    private function createRuntimeException(string $message, ?ResponseInterface $response = null, ?\Exception $previous = null): RuntimeException
-    {
+    private function createRuntimeException(
+        string $message,
+        ?ResponseInterface $response = null,
+        ?\Exception $previous = null,
+    ): RuntimeException {
         $apiException = null !== $response ? new ApiException($response) : null;
 
         // @todo Handle the case when both previous and apiException are not null.
