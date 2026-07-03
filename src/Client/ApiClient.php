@@ -100,7 +100,7 @@ class ApiClient
         $response = $this->request(Request::METHOD_GET, $url);
 
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new ApiException($response);
+            throw $this - createApiException($response);
         }
 
         return $this->createItemResult($response, CaseFile::class);
@@ -116,13 +116,13 @@ class ApiClient
         $response = $this->request(Request::METHOD_POST, $url);
         if (Response::HTTP_CREATED !== $response->getStatusCode()) {
             $message = 'Cannot get case create POE URLs';
-            throw new RuntimeException($message);
+            throw $this->createRuntimeException($message, response: $response);
         }
         try {
             $location = $this->getHeader('location', $response);
         } catch (\Exception $e) {
             $message = 'Cannot get case create POE URLs';
-            throw new RuntimeException($message, previous: $e);
+            throw $this->createRuntimeException($message, previous: $e);
         }
 
         $response = $this->request(Request::METHOD_POST, $location, [
@@ -132,7 +132,7 @@ class ApiClient
         if (Response::HTTP_CREATED !== $response->getStatusCode()) {
             // @TODO Log stuff.
             $message = 'Cannot create case';
-            throw new RuntimeException($message);
+            throw $this->createRuntimeException($message, response: $response);
         }
 
         return $this->createItemResult($response, CaseFile::class);
@@ -159,7 +159,7 @@ class ApiClient
         $response = $this->request(Request::METHOD_GET, $url);
 
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new ApiException($response);
+            throw $this->createApiException($response);
         }
 
         return $this->createItemResult($response, Matter::class);
@@ -173,7 +173,7 @@ class ApiClient
         $response = $this->request(Request::METHOD_GET, $url);
 
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new ApiException($response);
+            throw $this->createApiException($response);
         }
 
         return $this->createItemResult($response, Matter::class);
@@ -191,7 +191,7 @@ class ApiClient
             $message = null !== $case
                 ? sprintf('Cannot get matter create POE URL for case %s', $case)
                 : 'Cannot get matter create POE URLs';
-            throw new RuntimeException($message);
+            throw $this->createRuntimeException($message, response: $response);
         }
         try {
             $location = $this->getHeader('location', $response);
@@ -199,7 +199,7 @@ class ApiClient
             $message = null !== $case
                 ? sprintf('Cannot get matter create POE URL for case %s', $case)
                 : 'Cannot get matter create POE URLs';
-            throw new RuntimeException($message, previous: $e);
+            throw $this->createRuntimeException($message, previous: $e);
         }
 
         $response = $this->request(Request::METHOD_POST, $location, [
@@ -210,24 +210,10 @@ class ApiClient
             $message = null !== $case
                 ? sprintf('Cannot create matter for case %s', $case)
                 : 'Cannot create matter';
-            throw new RuntimeException($message);
+            throw $this->createRuntimeException($message, response: $response);
         }
 
         return $this->createItemResult($response, Matter::class);
-    }
-
-    /**
-     * Get header value.
-     */
-    private function getHeader(string $name, ResponseInterface $response): string
-    {
-        $headers = $response->getHeaders();
-        $name = strtolower($name);
-        if (!array_key_exists($name, $headers)) {
-            throw new RuntimeException(sprintf('Header "%s" not found.', $name));
-        }
-
-        return reset($headers[$name]);
     }
 
     public function documentById(int $id): Document
@@ -238,7 +224,50 @@ class ApiClient
         $response = $this->request(Request::METHOD_GET, $url);
 
         if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw new ApiException($response);
+            throw $this->createApiException($response);
+        }
+
+        return $this->createItemResult($response, Document::class);
+    }
+
+    public function documentCreate(string $filename, array $documentData, Matter $matter): Document
+    {
+        $linkName = 'http://cbrain.com/casefile/rel/create-document';
+        $url = $matter->links->getLinkUrl($linkName);
+
+        // The documentation is unclear on this POE stuff. Does it return 303 or 201?
+        // resources/f2-rest-docs/f2-rest-docs-v13s.html#11
+        $response = $this->request(Request::METHOD_POST, $url);
+        if (Response::HTTP_CREATED !== $response->getStatusCode()) {
+            $message = sprintf('Cannot get document create POE URL for matter %s', $matter);
+            throw $this->createRuntimeException($message, response: $response);
+        }
+        try {
+            $location = $this->getHeader('location', $response);
+        } catch (\Exception $e) {
+            $message = sprintf('Cannot get document create POE URL for matter %s', $matter);
+            throw $this->createRuntimeException($message, previous: $e);
+        }
+
+        $fileHandle = fopen($filename, 'r');
+        if (false === $fileHandle) {
+            $message = sprintf('Cannot open document file %s for matter %s', $filename, $matter);
+            throw $this->createRuntimeException($message);
+        }
+
+        try {
+            $response = $this->request(Request::METHOD_POST, $location, [
+                'body' => $documentData + [
+                    'File' => $fileHandle,
+                ],
+            ]);
+        } finally {
+            fclose($fileHandle);
+        }
+
+        if (Response::HTTP_CREATED !== $response->getStatusCode()) {
+            $message = sprintf('Cannot create document for matter %s', $matter);
+            throw $this->createRuntimeException($message, response: $response);
         }
 
         return $this->createItemResult($response, Document::class);
@@ -345,7 +374,7 @@ class ApiClient
 
         $url = $index[$rel]['href'] ?? null;
         if (null === $url) {
-            throw new RuntimeException(sprintf('Cannot get rel %s', $rel));
+            throw $this->createRuntimeException(sprintf('Cannot get rel %s', $rel));
         }
 
         return $this->replacePlaceholders($url, $values);
@@ -368,13 +397,13 @@ class ApiClient
                 // @mago-ignore analysis:mixed-array-access,non-documented-property
                 $searchUrl = (string) $sxe->Url['template'];
                 if (!filter_var($searchUrl, FILTER_VALIDATE_URL)) {
-                    throw new RuntimeException(sprintf('Cannot get search template URL for %s', $url));
+                    throw $this->createRuntimeException(sprintf('Cannot get search template URL for %s', $url));
                 }
 
                 return $searchUrl;
             });
         } catch (\Exception $e) {
-            throw new RuntimeException(sprintf('Cannot get search URL for rel %s', $rel), previous: $e);
+            throw $this->createRuntimeException(sprintf('Cannot get search URL for rel %s', $rel), previous: $e);
         }
 
         return $this->replacePlaceholders($url, $values);
@@ -388,7 +417,7 @@ class ApiClient
             static function (array $matches) use ($url, $values): string {
                 $name = $matches['name'];
                 if (!array_key_exists($name, $values)) {
-                    throw new RuntimeException(sprintf('Missing value %s for URL %s', $name, $url));
+                    throw $this->createRuntimeException(sprintf('Missing value %s for URL %s', $name, $url));
                 }
 
                 return rawurlencode((string) $values[$name]);
@@ -441,5 +470,53 @@ class ApiClient
             $message = '[F2 API client] '.$message;
             $this->logger->log($level, $message, $context);
         }
+    }
+
+    /**
+     * Get header value.
+     */
+    private function getHeader(string $name, ResponseInterface $response): string
+    {
+        $headers = $response->getHeaders();
+        $name = strtolower($name);
+        if (!array_key_exists($name, $headers)) {
+            throw $this->createRuntimeException(sprintf('Header "%s" not found.', $name));
+        }
+
+        return reset($headers[$name]);
+    }
+
+    private function createApiException(ResponseInterface $response): ApiException
+    {
+        $exception = new ApiException($response);
+
+        return $this->logException($exception);
+    }
+
+    private function createRuntimeException(string $message, ?ResponseInterface $response = null, ?\Exception $previous = null): RuntimeException
+    {
+        $apiException = null !== $response ? new ApiException($response) : null;
+
+        // @todo Handle the case when both previous and apiException are not null.
+        $exception = new RuntimeException($message, previous: $apiException ?? $previous);
+
+        return $this->logException($exception);
+    }
+
+    /**
+     * @template T of \Exception
+     *
+     * @param T $exception
+     *
+     * @return T
+     */
+    private function logException(\Exception $exception): \Exception
+    {
+        $this->error('exception: {message}', [
+            'message' => $exception->getMessage(),
+            'exception' => $exception,
+        ]);
+
+        return $exception;
     }
 }
