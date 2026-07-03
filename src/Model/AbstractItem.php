@@ -9,6 +9,7 @@ abstract class AbstractItem implements \JsonSerializable, \Stringable
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
         // @mago-ignore analysis:unsafe-instantiation
+        // @phpstan-ignore new.static
         return (new static())->setFromSimpleXMLElement($sxe);
     }
 
@@ -27,10 +28,8 @@ abstract class AbstractItem implements \JsonSerializable, \Stringable
     protected static function listOf(string $class, \SimpleXMLElement $sxe): array
     {
         $items = [];
+        /** @var \SimpleXMLElement $child */
         foreach ($sxe as $child) {
-            if (!$child instanceof \SimpleXMLElement) {
-                continue;
-            }
             /** @var T $item */
             $item = $class::fromSimpleXMLElement($child);
             $items[] = $item;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace ItkDev\F2ApiClient\Command;
 
 use ItkDev\F2ApiClient\Client\ApiClient;
+use ItkDev\F2ApiClient\Model\AbstractItem;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Attribute\Argument;
 use Symfony\Component\Console\Attribute\AsCommand;
@@ -80,7 +81,10 @@ class F2ApiClientCommand
         return new ApiClient($config);
     }
 
-    private function responseToArray($response): array
+    /**
+     * @return array<string, mixed>
+     */
+    private function responseToArray(array|AbstractItem $response): array
     {
         // @mago-ignore analysis:invalid-type-cast
         return (array) json_decode(

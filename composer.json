@@ -15,7 +15,8 @@
     "require-dev": {
         "php": "^8.3",
         "ergebnis/composer-normalize": "^2.52",
-        "friendsofphp/php-cs-fixer": "^3.95"
+        "friendsofphp/php-cs-fixer": "^3.95",
+        "phpstan/phpstan": "^2.2"
     },
     "autoload": {
         "psr-4": {

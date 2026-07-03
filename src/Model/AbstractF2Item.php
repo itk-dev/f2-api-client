@@ -15,8 +15,6 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
-        parent::setFromSimpleXMLElement($sxe);
-
         $this->id = (int) $sxe->Id;
         $this->links = Links::fromSimpleXMLElement($sxe);
 
@@ -34,7 +32,7 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
     {
         return [
             'id' => $this->id,
-            'links' => $this->links?->jsonSerialize(),
+            'links' => $this->links->jsonSerialize(),
         ];
     }
 }

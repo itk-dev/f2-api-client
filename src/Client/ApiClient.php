@@ -27,15 +27,35 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 /**
  * @phpstan-type AccessToken array{access_token: string, token_type: string, expires_in: int, refresh_token: string}
  * @phpstan-type ServiceIndex array<string, array{href: string, title: string}>
- */
+ * @phpstan-type OptionsInput array{
+ *   api_uri: non-empty-string,
+ *   api_username: non-empty-string,
+ *   api_secret: non-empty-string,
+ *   f2_username: non-empty-string,
+ *   cache_item_pool: CacheItemPoolInterface,
+ *   cache_item_lifetime?: int,
+ * }
+ * @phpstan-type Options array{
+ *    api_uri: non-empty-string,
+ *    api_username: non-empty-string,
+ *    api_secret: non-empty-string,
+ *    f2_username: non-empty-string,
+ *    cache_item_pool: CacheItemPoolInterface,
+ *    cache_item_lifetime: int,
+ *  }*/
 class ApiClient
 {
     use LoggerAwareTrait;
     use LoggerTrait;
 
+    /** @var Options */
     private readonly array $options;
+
     private ?HttpClientInterface $client = null;
 
+    /**
+     * @param OptionsInput $options
+     */
     public function __construct(array $options)
     {
         $resolver = new OptionsResolver();
@@ -68,7 +88,7 @@ class ApiClient
                 ],
             ]);
 
-            /** @var ServiceIndex */
+            /* @var ServiceIndex */
             return $response->toArray();
         });
     }
@@ -140,6 +160,9 @@ class ApiClient
         return $this->createItemResult($response, CaseFile::class);
     }
 
+    /**
+     * @return Atom[]
+     */
     public function matterSearch(string $searchTerms, int $count = 10): array
     {
         $query = [
@@ -366,10 +389,10 @@ class ApiClient
                 'api_secret',
                 'f2_username',
             ])
-            ->setDefault('cache_item_lifetime', 86_400)
-            ->setAllowedTypes('cache_item_lifetime', 'int')
             ->setRequired('cache_item_pool')
-            ->setAllowedTypes('cache_item_pool', CacheItemPoolInterface::class);
+            ->setAllowedTypes('cache_item_pool', CacheItemPoolInterface::class)
+            ->setDefault('cache_item_lifetime', 86_400)
+            ->setAllowedTypes('cache_item_lifetime', 'int');
     }
 
     protected function getRequestUrl(string $rel, array $values = []): string
@@ -468,7 +491,7 @@ class ApiClient
     {
         $item = new \SimpleXMLElement($response->getContent());
 
-        /** @var T */
+        /* @var T */
         return $class::fromSimpleXMLElement($item);
     }
 
