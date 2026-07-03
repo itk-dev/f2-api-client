@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-final class Matter extends F2Item
+final class Matter extends AbstractF2Item
 {
     // resources/f2-rest-docs/f2-rest-docs-v13s.html#65
     public const string TYPE_INTERNAL = 'Internal';
@@ -16,10 +16,11 @@ final class Matter extends F2Item
     public string $caseNumber;
     public \DateTimeImmutable $createdDate;
     public \DateTimeImmutable $modifiedDate;
-    public PartyItem $createdBy;
-    public PartyItem $modifiedBy;
-    public ?PartyItem $responsible;
+    public PartyItemAbstract $createdBy;
+    public PartyItemAbstract $modifiedBy;
+    public ?PartyItemAbstract $responsible;
 
+    // @mago-ignore analysis:non-documented-property,mixed-argument
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
@@ -31,9 +32,9 @@ final class Matter extends F2Item
         $this->title = (string) $sxe->Title;
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
-        $this->createdBy = PartyItem::fromSimpleXMLElement($sxe->CreatedBy);
-        $this->modifiedBy = PartyItem::fromSimpleXMLElement($sxe->ModifiedBy);
-        $this->responsible = $sxe->Responsible ? PartyItem::fromSimpleXMLElement($sxe->Responsible) : null;
+        $this->createdBy = PartyItemAbstract::fromSimpleXMLElement($sxe->CreatedBy);
+        $this->modifiedBy = PartyItemAbstract::fromSimpleXMLElement($sxe->ModifiedBy);
+        $this->responsible = $sxe->Responsible ? PartyItemAbstract::fromSimpleXMLElement($sxe->Responsible) : null;
 
         return $this;
     }

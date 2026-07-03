@@ -8,35 +8,43 @@ abstract class AbstractItem implements \JsonSerializable, \Stringable
 {
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
+        // @mago-ignore analysis:unsafe-instantiation
         return (new static())->setFromSimpleXMLElement($sxe);
     }
 
-    public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): self
+    public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
         return $this;
     }
 
     /**
-     * @param class-string<AbstractItem> $class
+     * @template T of AbstractItem
+     *
+     * @param class-string<T> $class
+     *
+     * @return T[]
      */
     protected static function listOf(string $class, \SimpleXMLElement $sxe): array
     {
         $items = [];
         foreach ($sxe as $child) {
-            $items[] = $class::fromSimpleXMLElement($child);
+            if (!$child instanceof \SimpleXMLElement) {
+                continue;
+            }
+            /** @var T $item */
+            $item = $class::fromSimpleXMLElement($child);
+            $items[] = $item;
         }
 
         return $items;
     }
 
-    protected function createDateTime(\SimpleXMLElement|string $value): ?\DateTimeImmutable
+    protected function createDateTime(\SimpleXMLElement|string $value): \DateTimeImmutable
     {
-        $value = trim((string) $value);
-        if ('' !== $value) {
-            // @todo Adjust for time zones!
-            return new \DateTimeImmutable($value);
-        }
+        // @todo Adjust for time zones!
+        $apiTimeZone = new \DateTimeZone('UTC');
+        $appTimeZone = new \DateTimeZone('UTC');
 
-        return null;
+        return (new \DateTimeImmutable((string) $value, $apiTimeZone))->setTimeZone($appTimeZone);
     }
 }

@@ -9,7 +9,7 @@ use ItkDev\F2ApiClient\Exception\RuntimeException;
 /**
  * @phpstan-type Link array{rel: string, href: string, title:string}
  */
-class Links implements \JsonSerializable
+final class Links implements \JsonSerializable
 {
     public function __construct(
         /** @var array<string, Link> */
@@ -17,12 +17,17 @@ class Links implements \JsonSerializable
     ) {
     }
 
-    public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): self
+    // @mago-ignore analysis:non-documented-property
+    public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
         $links = [];
-        foreach ($sxe->Link as $link) {
-            $attributes = ((array) $link)['@attributes'] ?? null;
-            if (is_array($attributes) && array_key_exists('rel', $attributes)) {
+        /** @var \SimpleXMLElement[] $elements */
+        $elements = $sxe->Link;
+        foreach ($elements as $element) {
+            // @mago-ignore analysis:invalid-type-cast
+            /** @var Link $attributes */
+            $attributes = (array) $element['@attributes'];
+            if (array_key_exists('rel', $attributes)) {
                 $links[$attributes['rel']] = $attributes;
             }
         }
@@ -45,7 +50,7 @@ class Links implements \JsonSerializable
     public function getLinkUrl(string $rel): string
     {
         $link = $this->getLink($rel);
-        if (!array_key_exists('href', $link) || !is_string($link['href'])) {
+        if (!array_key_exists('href', $link)) {
             throw new RuntimeException(sprintf('Cannot get URL for link "%s"', $rel));
         }
 

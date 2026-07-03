@@ -6,11 +6,12 @@ namespace ItkDev\F2ApiClient\Model;
 
 use ItkDev\F2ApiClient\Model\F2Item\Links;
 
-abstract class F2Item extends AbstractItem implements \Stringable
+abstract class AbstractF2Item extends AbstractItem implements \Stringable
 {
     public ?int $id = null;
-    public ?Links $links = null;
+    public Links $links;
 
+    // @mago-ignore analysis:non-documented-property
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {

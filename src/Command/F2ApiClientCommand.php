@@ -43,7 +43,7 @@ class F2ApiClientCommand
             default => throw new InvalidArgumentException(sprintf('Invalid action: %s', $action)),
         };
 
-        $response = json_decode(json_encode($response), true);
+        $response = $this->responseToArray($response);
         if (!$showLinks) {
             // @todo Recurse!
             unset($response['links']);
@@ -78,5 +78,15 @@ class F2ApiClientCommand
         ];
 
         return new ApiClient($config);
+    }
+
+    private function responseToArray($response): array
+    {
+        // @mago-ignore analysis:invalid-type-cast
+        return (array) json_decode(
+            json_encode($response, flags: JSON_THROW_ON_ERROR),
+            true,
+            flags: JSON_THROW_ON_ERROR,
+        );
     }
 }

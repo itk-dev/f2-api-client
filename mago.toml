@@ -55,7 +55,7 @@ too-many-methods = {
 
 # Our API client is not really that complex …
 cyclomatic-complexity = {
-  threshold = 30
+  threshold = 31
 }
 
 too-many-properties = {

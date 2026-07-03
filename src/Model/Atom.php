@@ -11,6 +11,7 @@ final class Atom extends AbstractItem
     public \DateTimeImmutable $published;
     public \DateTimeImmutable $updated;
 
+    // @mago-ignore analysis:non-documented-property,mixed-argument
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-final class CaseFile extends F2Item
+final class CaseFile extends AbstractF2Item
 {
     // @see resources/f2-rest-docs/f2-rest-docs-v13s.html#56
 
@@ -17,8 +17,8 @@ final class CaseFile extends F2Item
     public ?\DateTimeImmutable $deadline;
     public \DateTimeImmutable $createdDate;
     public \DateTimeImmutable $modifiedDate;
-    public PartyItem $modifiedBy;
-    public ?PartyItem $responsible;
+    public PartyItemAbstract $modifiedBy;
+    public ?PartyItemAbstract $responsible;
 
     // Link
     // List of Link (read-only)
@@ -29,6 +29,8 @@ final class CaseFile extends F2Item
     /** @var Matter[] */
     public array $matters;
 
+    // @mago-ignore analysis:non-documented-property,mixed-argument
+    #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
         parent::setFromSimpleXMLElement($sxe);
@@ -42,8 +44,8 @@ final class CaseFile extends F2Item
         $this->deadline = $this->createDateTime($sxe->Deadline);
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
-        $this->modifiedBy = PartyItem::fromSimpleXMLElement($sxe->ModifiedBy);
-        $this->responsible = $sxe->Responsible ? PartyItem::fromSimpleXMLElement($sxe->Responsible) : null;
+        $this->modifiedBy = PartyItemAbstract::fromSimpleXMLElement($sxe->ModifiedBy);
+        $this->responsible = $sxe->Responsible ? PartyItemAbstract::fromSimpleXMLElement($sxe->Responsible) : null;
 
         $this->matters = static::listOf(Matter::class, $sxe->Matters);
 

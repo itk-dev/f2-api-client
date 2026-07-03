@@ -4,12 +4,13 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-final class ProcessInstruction extends F2Item
+final class ProcessInstruction extends AbstractF2Item
 {
     public string $title;
     public string $path;
     public string $code;
 
+    // @mago-ignore analysis:non-documented-property
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {

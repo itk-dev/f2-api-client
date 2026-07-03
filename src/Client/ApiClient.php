@@ -26,6 +26,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
 
 /**
  * @phpstan-type AccessToken array{access_token: string, token_type: string, expires_in: int, refresh_token: string}
+ * @phpstan-type ServiceIndex array<string, array{href: string, title: string}>
  */
 class ApiClient
 {
@@ -44,7 +45,7 @@ class ApiClient
     }
 
     /**
-     * @return array<string, array{href: string, title: string}>
+     * @return ServiceIndex
      *
      * @throws \Symfony\Contracts\HttpClient\Exception\ClientExceptionInterface
      * @throws \Symfony\Contracts\HttpClient\Exception\DecodingExceptionInterface
@@ -67,6 +68,7 @@ class ApiClient
                 ],
             ]);
 
+            /** @var ServiceIndex */
             return $response->toArray();
         });
     }
@@ -416,7 +418,7 @@ class ApiClient
         // Replace URL placeholders ('{…}')
         return (string) preg_replace_callback(
             '/{(?P<name>[^}]+)}/',
-            static function (array $matches) use ($url, $values): string {
+            function (array $matches) use ($url, $values): string {
                 $name = $matches['name'];
                 if (!array_key_exists($name, $values)) {
                     throw $this->createRuntimeException(sprintf('Missing value %s for URL %s', $name, $url));
@@ -445,10 +447,11 @@ class ApiClient
     {
         $items = [];
         $sxe = new \SimpleXMLElement($response->getContent());
-        /** @var \SimpleXMLElement $entry */
         // @mago-ignore analysis:non-documented-property
-        foreach ($sxe->entry as $entry) {
-            $items[] = Atom::fromSimpleXMLElement($entry);
+        /** @var \SimpleXMLElement[] $elements */
+        $elements = $sxe->entry;
+        foreach ($elements as $element) {
+            $items[] = Atom::fromSimpleXMLElement($element);
         }
 
         return $items;
@@ -463,7 +466,10 @@ class ApiClient
      */
     protected function createItemResult(ResponseInterface $response, string $class): AbstractItem
     {
-        return $class::fromSimpleXMLElement(new \SimpleXMLElement($response->getContent()));
+        $item = new \SimpleXMLElement($response->getContent());
+
+        /** @var T */
+        return $class::fromSimpleXMLElement($item);
     }
 
     public function log($level, \Stringable|string $message, array $context = []): void
@@ -481,7 +487,7 @@ class ApiClient
     {
         $headers = $response->getHeaders();
         $name = strtolower($name);
-        if (!array_key_exists($name, $headers)) {
+        if (!array_key_exists($name, $headers) || 0 === count($headers[$name])) {
             throw $this->createRuntimeException(sprintf('Header "%s" not found.', $name));
         }
 
@@ -509,13 +515,13 @@ class ApiClient
     }
 
     /**
-     * @template T of \Exception
+     * @template T of RuntimeException
      *
      * @param T $exception
      *
      * @return T
      */
-    private function logException(\Exception $exception): \Exception
+    private function logException(RuntimeException $exception): RuntimeException
     {
         $this->error('exception: {message}', [
             'message' => $exception->getMessage(),

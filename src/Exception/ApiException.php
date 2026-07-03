@@ -29,6 +29,7 @@ class ApiException extends RuntimeException
         $code = $this->response->getStatusCode();
         try {
             $sxe = new \SimpleXMLElement($response->getContent(throw: false));
+            // @mago-ignore analysis:non-documented-property
             $message = (string) $sxe->Message;
         } catch (\Throwable $t) {
             $previous = $t;
