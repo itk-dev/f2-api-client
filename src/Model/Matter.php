@@ -13,6 +13,7 @@ final class Matter extends F2Item
 
     public string $matterNumber;
     public string $title;
+    public string $caseNumber;
     public \DateTimeImmutable $createdDate;
     public \DateTimeImmutable $modifiedDate;
     public PartyItem $createdBy;
@@ -26,6 +27,7 @@ final class Matter extends F2Item
 
         $this->id = (int) $sxe->Id;
         $this->matterNumber = (string) $sxe->MatterNumber;
+        $this->caseNumber = (string) $sxe->CaseNumber;
         $this->title = (string) $sxe->Title;
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
@@ -39,7 +41,7 @@ final class Matter extends F2Item
     #[\Override]
     public function __toString(): string
     {
-        return sprintf('Matter %s: %s', $this->matterNumber, $this->matterNumber);
+        return sprintf('Matter %s: %s (#%d)', $this->matterNumber, $this->title, $this->id);
     }
 
     #[\Override]
@@ -48,6 +50,7 @@ final class Matter extends F2Item
         return [
             'matterNumber' => $this->matterNumber,
             'title' => $this->title,
+            'caseNumber' => $this->caseNumber,
             'createdDate' => $this->createdDate,
             'modifiedDate' => $this->modifiedDate,
             'createdBy' => $this->createdBy->jsonSerialize(),

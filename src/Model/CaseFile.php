@@ -53,7 +53,7 @@ final class CaseFile extends F2Item
     #[\Override]
     public function __toString(): string
     {
-        return sprintf('Case %s: %s', $this->caseNumber, $this->title);
+        return sprintf('Case %s: %s (#%d)', $this->caseNumber, $this->title, $this->id);
     }
 
     #[\Override]
