@@ -6,6 +6,7 @@
     "require": {
         "ext-simplexml": "*",
         "psr/cache": "^2.0 || ^3.0",
+        "swaggest/json-diff": "^3.12",
         "symfony/cache": "^6.4 || ^7.4 || ^8.1",
         "symfony/console": "^6.4 || ^7.4 || ^8.1",
         "symfony/http-client": "^6.4 || ^7.4 || ^8.1",

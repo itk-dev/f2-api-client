@@ -11,6 +11,11 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
     public ?int $id = null;
     public Links $links;
 
+    public function __construct()
+    {
+        $this->links = new Links([]);
+    }
+
     // @mago-ignore analysis:non-documented-property
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
@@ -34,5 +39,10 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
             'id' => $this->id,
             'links' => $this->links->jsonSerialize(),
         ];
+    }
+
+    protected function serializeDateTime(?\DateTimeImmutable $dateTime): ?string
+    {
+        return $dateTime?->format(\DateTimeInterface::ATOM);
     }
 }

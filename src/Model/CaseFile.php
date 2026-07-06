@@ -62,17 +62,17 @@ final class CaseFile extends AbstractF2Item
     public function jsonSerialize(): array
     {
         return [
-            'caseNumber' => $this->caseNumber,
-            'title' => $this->title,
-            'closed' => $this->closed,
-            'journalPlan' => $this->journalPlan->jsonSerialize(),
-            'processInstruction' => $this->processInstruction->jsonSerialize(),
-            'deadline' => $this->deadline,
-            'createdDate' => $this->createdDate,
-            'modifiedDate' => $this->modifiedDate,
-            'modifiedBy' => $this->modifiedBy->jsonSerialize(),
-            'responsible' => $this->responsible?->jsonSerialize(),
-            'matters' => array_map(static fn (Matter $matter) => $matter->jsonSerialize(), $this->matters),
+            'CaseNumber' => $this->caseNumber,
+            'Title' => $this->title,
+            'Closed' => $this->closed,
+            'JournalPlan' => $this->journalPlan->jsonSerialize(),
+            'ProcessInstruction' => $this->processInstruction->jsonSerialize(),
+            'Deadline' => $this->deadline,
+            'CreatedDate' => $this->createdDate,
+            'ModifiedDate' => $this->modifiedDate,
+            'ModifiedBy' => $this->modifiedBy->jsonSerialize(),
+            'Responsible' => $this->responsible?->jsonSerialize(),
+            'Matters' => array_map(static fn (Matter $matter) => $matter->jsonSerialize(), $this->matters),
         ] + parent::jsonSerialize();
     }
 }

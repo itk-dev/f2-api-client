@@ -6,15 +6,18 @@ namespace ItkDev\F2ApiClient\Client;
 
 use ItkDev\F2ApiClient\Exception\ApiException;
 use ItkDev\F2ApiClient\Exception\RuntimeException;
+use ItkDev\F2ApiClient\Model\AbstractF2Item;
 use ItkDev\F2ApiClient\Model\AbstractItem;
 use ItkDev\F2ApiClient\Model\Atom;
 use ItkDev\F2ApiClient\Model\CaseFile;
+use ItkDev\F2ApiClient\Model\Collection;
 use ItkDev\F2ApiClient\Model\Document;
 use ItkDev\F2ApiClient\Model\Matter;
 use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerTrait;
+use Swaggest\JsonDiff\JsonDiff;
 use Symfony\Component\Cache\Adapter\ProxyAdapter;
 use Symfony\Component\HttpClient\HttpClient;
 use Symfony\Component\HttpFoundation\Request;
@@ -163,6 +166,27 @@ class ApiClient
         return $this->createItemResult($response, CaseFile::class);
     }
 
+    public function caseFileUpdate(CaseFile $caseFile, CaseFile $updatedCaseFile): bool
+    {
+        $url = $caseFile->links->getLinkUrl('self');
+        $diff = new JsonDiff(
+            $caseFile->jsonSerialize(),
+            $updatedCaseFile->jsonSerialize(),
+            // The F2 API does not support "test" in JSON Patch
+            options: JsonDiff::SKIP_TEST_OPS,
+        );
+        $response = $this->request(Request::METHOD_PATCH, $url, [
+            'json' => $diff->getPatch()->jsonSerialize(),
+        ]);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            $message = sprintf('Cannot update case %s', $caseFile);
+            throw $this->createRuntimeException($message, response: $response);
+        }
+
+        return true;
+    }
+
     /**
      * @return Atom[]
      */
@@ -244,6 +268,26 @@ class ApiClient
         return $this->createItemResult($response, Matter::class);
     }
 
+    public function matterUpdate(Matter $matter, Matter $updatedMatter): bool
+    {
+        $url = $matter->links->getLinkUrl('self');
+        $diff = new JsonDiff(
+            $matter->jsonSerialize(),
+            $updatedMatter->jsonSerialize(),
+            options: JsonDiff::SKIP_TEST_OPS,
+        );
+        $response = $this->request(Request::METHOD_PATCH, $url, [
+            'json' => $diff->getPatch()->jsonSerialize(),
+        ]);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            $message = sprintf('Cannot update matter %s', $matter);
+            throw $this->createRuntimeException($message, response: $response);
+        }
+
+        return true;
+    }
+
     public function documentById(int $id): Document
     {
         $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/document-by-id', [
@@ -256,6 +300,18 @@ class ApiClient
         }
 
         return $this->createItemResult($response, Document::class);
+    }
+
+    public function getDocumentContent(Document $document): ResponseInterface
+    {
+        $url = $document->links->getLinkUrl('http://cbrain.com/casefile/rel/content');
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw $this->createApiException($response);
+        }
+
+        return $response;
     }
 
     public function documentCreate(string $filename, array $documentData, Matter $matter): Document
@@ -337,6 +393,13 @@ class ApiClient
 
     protected function request(string $method, string $path, array $options = []): ResponseInterface
     {
+        if (Request::METHOD_PATCH === $method && array_key_exists('json', $options)) {
+            if (!array_key_exists('headers', $options) || !is_array($options['headers'])) {
+                $options['headers'] = [];
+            }
+            $options['headers']['content-type'] = 'application/json-patch';
+        }
+
         $accessToken = $this->getAccessToken();
 
         try {
@@ -554,5 +617,15 @@ class ApiClient
         ]);
 
         return $exception;
+    }
+
+    public function getDown(AbstractF2Item $item): Collection
+    {
+        $url = $item->links->getLinkUrl('down');
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        $sxe = new \SimpleXMLElement($response->getContent());
+
+        return Collection::fromSimpleXMLElement($sxe);
     }
 }

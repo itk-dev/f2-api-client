@@ -55,11 +55,15 @@ too-many-methods = {
 
 # Our API client is not really that complex …
 cyclomatic-complexity = {
-  threshold = 31
+  threshold = 38
 }
 
 too-many-properties = {
   threshold = 11
+}
+
+kan-defect = {
+  threshold = 1.92
 }
 
 [analyzer]

@@ -32,6 +32,7 @@ final class Links implements \JsonSerializable
             foreach ($attributes as $key => $value) {
                 $link[$key] = (string) $value;
             }
+            /** @var Link $link */
             if (array_key_exists('rel', $link)) {
                 $links[$link['rel']] = $link;
             }

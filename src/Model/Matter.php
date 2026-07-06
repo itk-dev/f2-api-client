@@ -51,15 +51,15 @@ final class Matter extends AbstractF2Item
     public function jsonSerialize(): array
     {
         return [
-            'matterNumber' => $this->matterNumber,
-            'title' => $this->title,
-            'type' => $this->type,
-            'caseNumber' => $this->caseNumber,
-            'createdDate' => $this->createdDate,
-            'modifiedDate' => $this->modifiedDate,
-            'createdBy' => $this->createdBy->jsonSerialize(),
-            'modifiedBy' => $this->modifiedBy->jsonSerialize(),
-            'responsible' => $this->responsible?->jsonSerialize(),
+            'MatterNumber' => $this->matterNumber,
+            'Title' => $this->title,
+            'Type' => $this->type,
+            'CaseNumber' => $this->caseNumber,
+            'CreatedDate' => $this->serializeDateTime($this->createdDate),
+            'ModifiedDate' => $this->serializeDateTime($this->modifiedDate),
+            'CreatedBy' => $this->createdBy->jsonSerialize(),
+            'ModifiedBy' => $this->modifiedBy->jsonSerialize(),
+            'Responsible' => $this->responsible?->jsonSerialize(),
         ] + parent::jsonSerialize();
     }
 }
