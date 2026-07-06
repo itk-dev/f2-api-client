@@ -35,8 +35,8 @@ final class Atom extends AbstractItem
         return [
             'id' => $this->id,
             'title' => $this->title,
-            'published' => $this->published->format(\DateTimeInterface::ATOM),
-            'updated' => $this->updated->format(\DateTimeInterface::ATOM),
+            'published' => $this->jsonSerializeDateTime($this->published),
+            'updated' => $this->jsonSerializeDateTime($this->updated),
         ];
     }
 }

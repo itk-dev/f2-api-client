@@ -40,9 +40,4 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
             'links' => $this->links->jsonSerialize(),
         ];
     }
-
-    protected function serializeDateTime(?\DateTimeImmutable $dateTime): ?string
-    {
-        return $dateTime?->format(\DateTimeInterface::ATOM);
-    }
 }

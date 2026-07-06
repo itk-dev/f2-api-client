@@ -38,8 +38,8 @@ final class Document extends AbstractF2Item
         return [
             'Title' => $this->title,
             'Description' => $this->description,
-            'CreatedDate' => $this->serializeDateTime($this->createdDate),
-            'ModifiedDate' => $this->serializeDateTime($this->modifiedDate),
+            'CreatedDate' => $this->jsonSerializeDateTime($this->createdDate),
+            'ModifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
         ] + parent::jsonSerialize();
     }
 }
