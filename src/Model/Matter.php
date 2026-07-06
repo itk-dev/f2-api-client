@@ -13,6 +13,7 @@ final class Matter extends AbstractF2Item
 
     public string $matterNumber;
     public string $title;
+    public string $type;
     public string $caseNumber;
     public \DateTimeImmutable $createdDate;
     public \DateTimeImmutable $modifiedDate;
@@ -30,6 +31,7 @@ final class Matter extends AbstractF2Item
         $this->matterNumber = (string) $sxe->MatterNumber;
         $this->caseNumber = (string) $sxe->CaseNumber;
         $this->title = (string) $sxe->Title;
+        $this->type = (string) $sxe->Type;
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
         $this->createdBy = PartyItemAbstract::fromSimpleXMLElement($sxe->CreatedBy);
@@ -51,6 +53,7 @@ final class Matter extends AbstractF2Item
         return [
             'matterNumber' => $this->matterNumber,
             'title' => $this->title,
+            'type' => $this->type,
             'caseNumber' => $this->caseNumber,
             'createdDate' => $this->createdDate,
             'modifiedDate' => $this->modifiedDate,
