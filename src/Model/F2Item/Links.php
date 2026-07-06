@@ -24,11 +24,16 @@ final class Links implements \JsonSerializable
         /** @var \SimpleXMLElement[] $elements */
         $elements = $sxe->Link;
         foreach ($elements as $element) {
-            // @mago-ignore analysis:invalid-type-cast
-            /** @var Link $attributes */
-            $attributes = (array) $element['@attributes'];
-            if (array_key_exists('rel', $attributes)) {
-                $links[$attributes['rel']] = $attributes;
+            $attributes = $element->attributes();
+            if (null === $attributes) {
+                continue;
+            }
+            $link = [];
+            foreach ($attributes as $key => $value) {
+                $link[$key] = (string) $value;
+            }
+            if (array_key_exists('rel', $link)) {
+                $links[$link['rel']] = $link;
             }
         }
 
