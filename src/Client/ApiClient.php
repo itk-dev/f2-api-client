@@ -168,11 +168,10 @@ class ApiClient
 
     public function caseFileUpdate(CaseFile $caseFile, CaseFile $updatedCaseFile): bool
     {
-        $url = $caseFile->links->getLinkUrl('self');
+        $url = $caseFile->links->getUrl('self');
         $diff = new JsonDiff(
             $caseFile->jsonSerialize(),
             $updatedCaseFile->jsonSerialize(),
-            // The F2 API does not support "test" in JSON Patch
             options: JsonDiff::SKIP_TEST_OPS,
         );
         $response = $this->request(Request::METHOD_PATCH, $url, [
@@ -234,7 +233,7 @@ class ApiClient
     public function matterCreate(array $matterData, ?CaseFile $case = null): Matter
     {
         $linkName = 'http://cbrain.com/casefile/rel/create-matter';
-        $url = null !== $case ? $case->links->getLinkUrl($linkName) : $this->getRequestUrl($linkName);
+        $url = null !== $case ? $case->links->getUrl($linkName) : $this->getRequestUrl($linkName);
 
         // The documentation is unclear on this POE stuff. Does it return 303 or 201?
         // resources/f2-rest-docs/f2-rest-docs-v13s.html#11
@@ -270,19 +269,17 @@ class ApiClient
 
     public function matterUpdate(Matter $matter, Matter $updatedMatter): bool
     {
-        $url = $matter->links->getLinkUrl('self');
-        $diff = new JsonDiff(
-            $matter->jsonSerialize(),
-            $updatedMatter->jsonSerialize(),
-            options: JsonDiff::SKIP_TEST_OPS,
-        );
-        $response = $this->request(Request::METHOD_PATCH, $url, [
-            'json' => $diff->getPatch()->jsonSerialize(),
-        ]);
+        $url = $matter->links->getUrl('self');
+        $diff = $this->computeDiff($matter, $updatedMatter);
+        if ($diff->getDiffCnt() > 0) {
+            $response = $this->request(Request::METHOD_PATCH, $url, [
+                'json' => $diff->getPatch()->jsonSerialize(),
+            ]);
 
-        if (Response::HTTP_OK !== $response->getStatusCode()) {
-            $message = sprintf('Cannot update matter %s', $matter);
-            throw $this->createRuntimeException($message, response: $response);
+            if (Response::HTTP_OK !== $response->getStatusCode()) {
+                $message = sprintf('Cannot update matter %s', $matter);
+                throw $this->createRuntimeException($message, response: $response);
+            }
         }
 
         return true;
@@ -302,22 +299,10 @@ class ApiClient
         return $this->createItemResult($response, Document::class);
     }
 
-    public function getDocumentContent(Document $document): ResponseInterface
-    {
-        $url = $document->links->getLinkUrl('http://cbrain.com/casefile/rel/content');
-        $response = $this->request(Request::METHOD_GET, $url);
-
-        if (Response::HTTP_OK !== $response->getStatusCode()) {
-            throw $this->createApiException($response);
-        }
-
-        return $response;
-    }
-
-    public function documentCreate(string $filename, array $documentData, Matter $matter): Document
+    public function documentCreate(array $documentData, string $filename, Matter $matter): Document
     {
         $linkName = 'http://cbrain.com/casefile/rel/create-document';
-        $url = $matter->links->getLinkUrl($linkName);
+        $url = $matter->links->getUrl($linkName);
 
         // The documentation is unclear on this POE stuff. Does it return 303 or 201?
         // resources/f2-rest-docs/f2-rest-docs-v13s.html#11
@@ -356,6 +341,61 @@ class ApiClient
         }
 
         return $this->createItemResult($response, Document::class);
+    }
+
+    public function documentUpdate(Document $document, Document $updatedDocument, ?string $filename = null): bool
+    {
+        $url = $document->links->getUrl('self');
+        $diff = $this->computeDiff($document, $updatedDocument);
+        if ($diff->getDiffCnt() > 0) {
+            $response = $this->request(Request::METHOD_PATCH, $url, [
+                'json' => $diff->getPatch()->jsonSerialize(),
+            ]);
+
+            if (Response::HTTP_OK !== $response->getStatusCode()) {
+                $message = sprintf('Cannot update document %s', $document);
+                throw $this->createRuntimeException($message, response: $response);
+            }
+        }
+
+        if (null !== $filename) {
+            $fileHandle = fopen($filename, 'r');
+            if (false === $fileHandle) {
+                $message = sprintf('Cannot open document file %s', $filename);
+                throw $this->createRuntimeException($message);
+            }
+
+            $url = $document->links->getUrl('http://cbrain.com/casefile/rel/content');
+
+            try {
+                $response = $this->request(Request::METHOD_PUT, $url, [
+                    'body' => [
+                        'File' => $fileHandle,
+                    ],
+                ]);
+            } finally {
+                fclose($fileHandle);
+            }
+
+            if (Response::HTTP_NO_CONTENT !== $response->getStatusCode()) {
+                $message = sprintf('Cannot update file on document %s', $document);
+                throw $this->createRuntimeException($message, response: $response);
+            }
+        }
+
+        return true;
+    }
+
+    public function getDocumentContent(Document $document): ResponseInterface
+    {
+        $url = $document->links->getUrl('http://cbrain.com/casefile/rel/content');
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw $this->createApiException($response);
+        }
+
+        return $response;
     }
 
     /**
@@ -619,13 +659,23 @@ class ApiClient
         return $exception;
     }
 
-    public function getDown(AbstractF2Item $item): Collection
+    public function getLinkCollection(AbstractF2Item $item, string $rel): Collection
     {
-        $url = $item->links->getLinkUrl('down');
+        $url = $item->links->getUrl($rel);
         $response = $this->request(Request::METHOD_GET, $url);
 
         $sxe = new \SimpleXMLElement($response->getContent());
 
         return Collection::fromSimpleXMLElement($sxe);
+    }
+
+    private function computeDiff(AbstractF2Item $old, AbstractF2Item $new): JsonDiff
+    {
+        $oldValues = $old->jsonSerialize();
+        $newValues = $new->jsonSerialize();
+
+        // @todo Filter out some values, e.g. timestamps.
+
+        return new JsonDiff($oldValues, $newValues, options: JsonDiff::SKIP_TEST_OPS);
     }
 }

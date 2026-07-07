@@ -32,6 +32,9 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
         return sprintf('F2 Item (%s)', $this->id);
     }
 
+    /**
+     * Serialize with the names (paths) needed for JSON patch.
+     */
     #[\Override]
     public function jsonSerialize(): array
     {

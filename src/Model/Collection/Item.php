@@ -23,7 +23,7 @@ final class Item extends AbstractF2Item implements \JsonSerializable
     #[\Override]
     public function __toString(): string
     {
-        return sprintf('Document %s (#%d)', $this->title, $this->id);
+        return sprintf('%s (#%d)', $this->title, $this->id);
     }
 
     #[\Override]

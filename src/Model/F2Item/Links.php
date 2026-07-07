@@ -41,21 +41,26 @@ final class Links implements \JsonSerializable
         return new self(links: $links);
     }
 
+    public function has(string $rel): bool
+    {
+        return array_key_exists($rel, $this->links);
+    }
+
     /**
      * @return Link
      */
-    public function getLink(string $rel): array
+    public function get(string $rel): array
     {
-        if (!array_key_exists($rel, $this->links)) {
+        if (!$this->has($rel)) {
             throw new RuntimeException(sprintf('Cannot get link "%s"', $rel));
         }
 
         return $this->links[$rel];
     }
 
-    public function getLinkUrl(string $rel): string
+    public function getUrl(string $rel): string
     {
-        $link = $this->getLink($rel);
+        $link = $this->get($rel);
         if (!array_key_exists('href', $link)) {
             throw new RuntimeException(sprintf('Cannot get URL for link "%s"', $rel));
         }
