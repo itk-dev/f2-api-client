@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Command;
 
-use ItkDev\F2ApiClient\Client\ApiClient;
+use ItkDev\F2ApiClient\ApiClient;
 use ItkDev\F2ApiClient\Model\AbstractItem;
 use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\Console\Attribute\Argument;

@@ -6,7 +6,7 @@ parameters:
     treatPhpDocTypesAsCertain: false
 
     ignoreErrors:
-        - message: '#Method ItkDev\\F2ApiClient\\Client\\ApiClient::[^ ]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array.#'
+        - message: '#Method ItkDev\\F2ApiClient\\ApiClient::[^ ]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array.#'
           path: src/*
 
         - message: '#Method ItkDev\\F2ApiClient\\Model\\[^ ]+::jsonSerialize\(\) return type has no value type specified in iterable type array.#'

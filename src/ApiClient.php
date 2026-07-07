@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace ItkDev\F2ApiClient\Client;
+namespace ItkDev\F2ApiClient;
 
 use ItkDev\F2ApiClient\Exception\ApiException;
 use ItkDev\F2ApiClient\Exception\RuntimeException;
@@ -50,6 +50,17 @@ class ApiClient
 {
     use LoggerAwareTrait;
     use LoggerTrait;
+
+    private const string REL_CASE_BY_ID = 'http://cbrain.com/casefile/rel/case-by-id';
+    private const string REL_CASE_SEARCH = 'http://cbrain.com/casefile/rel/case-search';
+    private const string REL_CONTENT = 'http://cbrain.com/casefile/rel/content';
+    private const string REL_CREATE_CASE = 'http://cbrain.com/casefile/rel/create-case';
+    private const string REL_CREATE_DOCUMENT = 'http://cbrain.com/casefile/rel/create-document';
+    private const string REL_CREATE_MATTER = 'http://cbrain.com/casefile/rel/create-matter';
+    private const string REL_DOCUMENT_BY_ID = 'http://cbrain.com/casefile/rel/document-by-id';
+    private const string REL_MATTER_BY_ID = 'http://cbrain.com/casefile/rel/matter-by-id';
+    private const string REL_MATTER_BY_MATTER_NUMBER = 'http://cbrain.com/casefile/rel/matter-by-matter-number';
+    private const string REL_MATTER_SEARCH = 'http://cbrain.com/casefile/rel/matter-search';
 
     /** @var OptionsResolved */
     private readonly array $options;
@@ -114,7 +125,7 @@ class ApiClient
             'count' => $count,
         ];
 
-        $url = $this->getSearchRequestUrl('http://cbrain.com/casefile/rel/case-search', $query);
+        $url = $this->getSearchRequestUrl(self::REL_CASE_SEARCH, $query);
         $response = $this->request(Request::METHOD_GET, $url);
 
         return $this->createSearchResult($response);
@@ -122,7 +133,7 @@ class ApiClient
 
     public function caseById(int $id): CaseFile
     {
-        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/case-by-id', [
+        $url = $this->getRequestUrl(self::REL_CASE_BY_ID, [
             'id' => $id,
         ]);
         $response = $this->request(Request::METHOD_GET, $url);
@@ -136,7 +147,7 @@ class ApiClient
 
     public function caseCreate(array $caseData): CaseFile
     {
-        $linkName = 'http://cbrain.com/casefile/rel/create-case';
+        $linkName = self::REL_CREATE_CASE;
         $url = $this->getRequestUrl($linkName);
 
         // The documentation is unclear on this POE stuff. Does it return 303 or 201?
@@ -196,7 +207,7 @@ class ApiClient
             'count' => $count,
         ];
 
-        $url = $this->getSearchRequestUrl('http://cbrain.com/casefile/rel/matter-search', $query);
+        $url = $this->getSearchRequestUrl(self::REL_MATTER_SEARCH, $query);
         $response = $this->request(Request::METHOD_GET, $url);
 
         return $this->createSearchResult($response);
@@ -204,7 +215,7 @@ class ApiClient
 
     public function matterById(int $id): Matter
     {
-        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-by-id', [
+        $url = $this->getRequestUrl(self::REL_MATTER_BY_ID, [
             'id' => $id,
         ]);
         $response = $this->request(Request::METHOD_GET, $url);
@@ -218,7 +229,7 @@ class ApiClient
 
     public function matterByMatterNumber(string $matterNumber): Matter
     {
-        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/matter-by-matter-number', [
+        $url = $this->getRequestUrl(self::REL_MATTER_BY_MATTER_NUMBER, [
             'matterNumber' => $matterNumber,
         ]);
         $response = $this->request(Request::METHOD_GET, $url);
@@ -232,7 +243,7 @@ class ApiClient
 
     public function matterCreate(array $matterData, ?CaseFile $case = null): Matter
     {
-        $linkName = 'http://cbrain.com/casefile/rel/create-matter';
+        $linkName = self::REL_CREATE_MATTER;
         $url = null !== $case ? $case->links->getUrl($linkName) : $this->getRequestUrl($linkName);
 
         // The documentation is unclear on this POE stuff. Does it return 303 or 201?
@@ -287,7 +298,7 @@ class ApiClient
 
     public function documentById(int $id): Document
     {
-        $url = $this->getRequestUrl('http://cbrain.com/casefile/rel/document-by-id', [
+        $url = $this->getRequestUrl(self::REL_DOCUMENT_BY_ID, [
             'id' => $id,
         ]);
         $response = $this->request(Request::METHOD_GET, $url);
@@ -301,7 +312,7 @@ class ApiClient
 
     public function documentCreate(array $documentData, string $filename, Matter $matter): Document
     {
-        $linkName = 'http://cbrain.com/casefile/rel/create-document';
+        $linkName = self::REL_CREATE_DOCUMENT;
         $url = $matter->links->getUrl($linkName);
 
         // The documentation is unclear on this POE stuff. Does it return 303 or 201?
@@ -365,7 +376,7 @@ class ApiClient
                 throw $this->createRuntimeException($message);
             }
 
-            $url = $document->links->getUrl('http://cbrain.com/casefile/rel/content');
+            $url = $document->links->getUrl(self::REL_CONTENT);
 
             try {
                 $response = $this->request(Request::METHOD_PUT, $url, [
@@ -388,7 +399,7 @@ class ApiClient
 
     public function getDocumentContent(Document $document): ResponseInterface
     {
-        $url = $document->links->getUrl('http://cbrain.com/casefile/rel/content');
+        $url = $document->links->getUrl(self::REL_CONTENT);
         $response = $this->request(Request::METHOD_GET, $url);
 
         if (Response::HTTP_OK !== $response->getStatusCode()) {
