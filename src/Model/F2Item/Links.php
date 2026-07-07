@@ -5,16 +5,23 @@ declare(strict_types=1);
 namespace ItkDev\F2ApiClient\Model\F2Item;
 
 use ItkDev\F2ApiClient\Exception\RuntimeException;
+use ItkDev\F2ApiClient\Model\AbstractItem;
 
 /**
  * @phpstan-type Link array{rel: string, href: string, title:string}
  */
-final class Links implements \JsonSerializable
+final class Links extends AbstractItem
 {
     public function __construct(
         /** @var array<string, Link> */
         private readonly array $links,
     ) {
+    }
+
+    #[\Override]
+    public function __toString(): string
+    {
+        return self::class;
     }
 
     // @mago-ignore analysis:non-documented-property

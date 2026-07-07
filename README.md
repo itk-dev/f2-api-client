@@ -10,6 +10,10 @@ See the [F2 REST API documentation](resources/f2-rest-docs/f2-rest-docs-v13s.htm
 composer require itk-dev/f2-api-client
 ```
 
+## Usage
+
+See [F2ApiClientCommand](src/Command/F2ApiClientCommand.php) for an example usage.
+
 ## Testing
 
 Edit `.env.local` and set these variables:

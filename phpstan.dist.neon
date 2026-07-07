@@ -4,13 +4,3 @@ parameters:
         - src
 
     treatPhpDocTypesAsCertain: false
-
-    ignoreErrors:
-        - message: '#Method ItkDev\\F2ApiClient\\ApiClient::[^ ]+\(\) has parameter \$[^ ]+ with no value type specified in iterable type array.#'
-          path: src/*
-
-        - message: '#Method ItkDev\\F2ApiClient\\Model\\[^ ]+::jsonSerialize\(\) return type has no value type specified in iterable type array.#'
-          path: src/*
-
-        - message: '#Method ItkDev\\F2ApiClient\\Command\\F2ApiClientCommand::responseToArray\(\) has parameter \$response with no value type specified in iterable type array.#'
-          path: src/Command/F2ApiClientCommand.php

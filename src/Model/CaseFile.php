@@ -65,14 +65,15 @@ final class CaseFile extends AbstractF2Item
             'CaseNumber' => $this->caseNumber,
             'Title' => $this->title,
             'Closed' => $this->closed,
-            'JournalPlan' => $this->journalPlan->jsonSerialize(),
-            'ProcessInstruction' => $this->processInstruction->jsonSerialize(),
             'Deadline' => $this->deadline,
-            'CreatedDate' => $this->jsonSerializeDateTime($this->createdDate),
-            'ModifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
-            'ModifiedBy' => $this->modifiedBy->jsonSerialize(),
-            'Responsible' => $this->responsible?->jsonSerialize(),
-            'Matters' => array_map(static fn (Matter $matter) => $matter->jsonSerialize(), $this->matters),
+
+            'journalPlan' => $this->journalPlan->jsonSerialize(),
+            'processInstruction' => $this->processInstruction->jsonSerialize(),
+            'createdDate' => $this->jsonSerializeDateTime($this->createdDate),
+            'modifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
+            'modifiedBy' => $this->modifiedBy->jsonSerialize(),
+            'responsible' => $this->responsible?->jsonSerialize(),
+            'matters' => array_map(static fn (Matter $matter) => $matter->jsonSerialize(), $this->matters),
         ] + parent::jsonSerialize();
     }
 }

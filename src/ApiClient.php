@@ -682,10 +682,8 @@ class ApiClient
 
     private function computeDiff(AbstractF2Item $old, AbstractF2Item $new): JsonDiff
     {
-        $oldValues = $old->jsonSerialize();
-        $newValues = $new->jsonSerialize();
-
-        // @todo Filter out some values, e.g. timestamps.
+        $oldValues = $old::filterForJsonPatch($old->jsonSerialize());
+        $newValues = $new::filterForJsonPatch($new->jsonSerialize());
 
         return new JsonDiff($oldValues, $newValues, options: JsonDiff::SKIP_TEST_OPS);
     }

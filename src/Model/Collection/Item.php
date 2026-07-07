@@ -6,7 +6,7 @@ namespace ItkDev\F2ApiClient\Model\Collection;
 
 use ItkDev\F2ApiClient\Model\AbstractF2Item;
 
-final class Item extends AbstractF2Item implements \JsonSerializable
+final class Item extends AbstractF2Item
 {
     public string $title;
 

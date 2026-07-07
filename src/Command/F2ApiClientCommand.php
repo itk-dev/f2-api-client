@@ -82,6 +82,8 @@ class F2ApiClientCommand
     }
 
     /**
+     * @param AbstractItem|array<array-key, mixed> $response
+     *
      * @return array<array-key, mixed>
      */
     private function responseToArray(array|AbstractItem $response): array

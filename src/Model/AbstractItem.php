@@ -47,6 +47,11 @@ abstract class AbstractItem implements \JsonSerializable, \Stringable
         return (new \DateTimeImmutable((string) $value, $apiTimeZone))->setTimeZone($appTimeZone);
     }
 
+    /**
+     * @return array<string, mixed>
+     */
+    abstract public function jsonSerialize(): array;
+
     protected function jsonSerializeDateTime(?\DateTimeImmutable $dateTime): ?string
     {
         return $dateTime?->format(\DateTimeInterface::ATOM);

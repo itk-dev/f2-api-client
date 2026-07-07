@@ -6,7 +6,7 @@ namespace ItkDev\F2ApiClient\Model;
 
 use ItkDev\F2ApiClient\Model\F2Item\Links;
 
-abstract class AbstractF2Item extends AbstractItem implements \Stringable
+abstract class AbstractF2Item extends AbstractItem
 {
     public ?int $id = null;
     public Links $links;
@@ -34,6 +34,10 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
 
     /**
      * Serialize with the names (paths) needed for JSON patch.
+     *
+     * Only names starting with a capital letter will be included in JSON patch'ing (cf. self::filterForJsonPatch).
+     *
+     * @see self::filterForJsonPatch()
      */
     #[\Override]
     public function jsonSerialize(): array
@@ -42,5 +46,20 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
             'id' => $this->id,
             'links' => $this->links->jsonSerialize(),
         ];
+    }
+
+    /**
+     * @param array<string, mixed> $values
+     *
+     * @return array<string, mixed>
+     */
+    public static function filterForJsonPatch(array $values): array
+    {
+        // Keep only keys starting with a capital letter.
+        return array_filter(
+            $values,
+            static fn (string $key) => ucfirst($key) === $key,
+            ARRAY_FILTER_USE_KEY,
+        );
     }
 }
