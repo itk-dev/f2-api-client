@@ -7,27 +7,16 @@ namespace ItkDev\F2ApiClient\Model;
 final class CaseFile extends AbstractF2Item
 {
     // @see resources/f2-rest-docs/f2-rest-docs-v13s.html#56
-
-    public string $caseNumber;
-
-    public string $title;
-    public bool $closed;
-    public JournalPlan $journalPlan;
-    public ProcessInstruction $processInstruction;
-    public ?\DateTimeImmutable $deadline;
-    public \DateTimeImmutable $createdDate;
-    public \DateTimeImmutable $modifiedDate;
-    public PartyItemAbstract $modifiedBy;
-    public ?PartyItemAbstract $responsible;
-
-    // Link
-    // List of Link (read-only)
-    // One or more links to other related resources.
-    // Matters
-    // List of Matter
-    // List of all accessible matters on the case.
-    /** @var Matter[] */
-    public array $matters;
+    public ?string $caseNumber = null;
+    public ?string $title = null;
+    public bool $closed = false;
+    public ?JournalPlan $journalPlan = null;
+    public ?ProcessInstruction $processInstruction = null;
+    public ?\DateTimeImmutable $deadline = null;
+    public ?\DateTimeImmutable $createdDate = null;
+    public ?\DateTimeImmutable $modifiedDate = null;
+    public ?Party $modifiedBy = null;
+    public ?Party $responsible = null;
 
     // @mago-ignore analysis:non-documented-property,mixed-argument
     #[\Override]
@@ -44,10 +33,8 @@ final class CaseFile extends AbstractF2Item
         $this->deadline = $this->createDateTime($sxe->Deadline);
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
-        $this->modifiedBy = PartyItemAbstract::fromSimpleXMLElement($sxe->ModifiedBy);
-        $this->responsible = $sxe->Responsible ? PartyItemAbstract::fromSimpleXMLElement($sxe->Responsible) : null;
-
-        $this->matters = static::listOf(Matter::class, $sxe->Matters);
+        $this->modifiedBy = Party::fromSimpleXMLElement($sxe->ModifiedBy);
+        $this->responsible = $sxe->Responsible ? Party::fromSimpleXMLElement($sxe->Responsible) : null;
 
         return $this;
     }
@@ -59,21 +46,26 @@ final class CaseFile extends AbstractF2Item
     }
 
     #[\Override]
-    public function jsonSerialize(): array
+    public function apiSerialize(): array
     {
         return [
             'CaseNumber' => $this->caseNumber,
             'Title' => $this->title,
             'Closed' => $this->closed,
             'Deadline' => $this->deadline,
+        ];
+    }
 
-            'journalPlan' => $this->journalPlan->jsonSerialize(),
-            'processInstruction' => $this->processInstruction->jsonSerialize(),
+    #[\Override]
+    public function jsonSerialize(): array
+    {
+        return [
+            'journalPlan' => $this->journalPlan?->jsonSerialize(),
+            'processInstruction' => $this->processInstruction?->jsonSerialize(),
             'createdDate' => $this->jsonSerializeDateTime($this->createdDate),
             'modifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
-            'modifiedBy' => $this->modifiedBy->jsonSerialize(),
+            'modifiedBy' => $this->modifiedBy?->jsonSerialize(),
             'responsible' => $this->responsible?->jsonSerialize(),
-            'matters' => array_map(static fn (Matter $matter) => $matter->jsonSerialize(), $this->matters),
         ] + parent::jsonSerialize();
     }
 }

@@ -145,7 +145,7 @@ class ApiClient
         return $this->createItemResult($response, CaseFile::class);
     }
 
-    public function caseCreate(array $caseData): CaseFile
+    public function caseCreate(CaseFile $caseFile): CaseFile
     {
         $linkName = self::REL_CREATE_CASE;
         $url = $this->getRequestUrl($linkName);
@@ -165,11 +165,10 @@ class ApiClient
         }
 
         $response = $this->request(Request::METHOD_POST, $location, [
-            'json' => $caseData,
+            'json' => $caseFile->apiSerialize(),
         ]);
 
         if (Response::HTTP_CREATED !== $response->getStatusCode()) {
-            // @TODO Log stuff.
             $message = 'Cannot create case';
             throw $this->createRuntimeException($message, response: $response);
         }
@@ -181,8 +180,8 @@ class ApiClient
     {
         $url = $caseFile->links->getUrl('self');
         $diff = new JsonDiff(
-            $caseFile->jsonSerialize(),
-            $updatedCaseFile->jsonSerialize(),
+            $caseFile->apiSerialize(),
+            $updatedCaseFile->apiSerialize(),
             options: JsonDiff::SKIP_TEST_OPS,
         );
         $response = $this->request(Request::METHOD_PATCH, $url, [
@@ -241,7 +240,7 @@ class ApiClient
         return $this->createItemResult($response, Matter::class);
     }
 
-    public function matterCreate(array $matterData, ?CaseFile $case = null): Matter
+    public function matterCreate(Matter $matter, ?CaseFile $case = null): Matter
     {
         $linkName = self::REL_CREATE_MATTER;
         $url = null !== $case ? $case->links->getUrl($linkName) : $this->getRequestUrl($linkName);
@@ -265,7 +264,7 @@ class ApiClient
         }
 
         $response = $this->request(Request::METHOD_POST, $location, [
-            'json' => $matterData,
+            'json' => $matter->apiSerialize(),
         ]);
 
         if (Response::HTTP_CREATED !== $response->getStatusCode()) {
@@ -310,7 +309,7 @@ class ApiClient
         return $this->createItemResult($response, Document::class);
     }
 
-    public function documentCreate(array $documentData, string $filename, Matter $matter): Document
+    public function documentCreate(Document $document, string $filename, Matter $matter): Document
     {
         $linkName = self::REL_CREATE_DOCUMENT;
         $url = $matter->links->getUrl($linkName);
@@ -337,7 +336,7 @@ class ApiClient
 
         try {
             $response = $this->request(Request::METHOD_POST, $location, [
-                'body' => $documentData
+                'body' => $document->apiSerialize()
                     + [
                         'File' => $fileHandle,
                     ],
@@ -442,6 +441,9 @@ class ApiClient
         });
     }
 
+    /**
+     * @param array<array-key, mixed> $options
+     */
     protected function request(string $method, string $path, array $options = []): ResponseInterface
     {
         if (Request::METHOD_PATCH === $method && array_key_exists('json', $options)) {
@@ -512,6 +514,9 @@ class ApiClient
             ->setAllowedTypes('cache_item_lifetime', 'int');
     }
 
+    /**
+     * @param array<string, string|int> $values
+     */
     protected function getRequestUrl(string $rel, array $values = []): string
     {
         $index = $this->getServiceIndex();
@@ -524,6 +529,9 @@ class ApiClient
         return $this->replacePlaceholders($url, $values);
     }
 
+    /**
+     * @param array<string, string|int> $values
+     */
     protected function getSearchRequestUrl(string $rel, array $values): string
     {
         $url = $this->getRequestUrl($rel, []);
@@ -553,6 +561,9 @@ class ApiClient
         return $this->replacePlaceholders($url, $values);
     }
 
+    /**
+     * @param array<string, string|int> $values
+     */
     protected function replacePlaceholders(string $url, array $values): string
     {
         // Replace URL placeholders ('{…}')
@@ -611,6 +622,7 @@ class ApiClient
         return $class::fromSimpleXMLElement($item);
     }
 
+    // @phpstan-ignore missingType.iterableValue
     public function log($level, \Stringable|string $message, array $context = []): void
     {
         if (null !== $this->logger) {
@@ -682,8 +694,8 @@ class ApiClient
 
     private function computeDiff(AbstractF2Item $old, AbstractF2Item $new): JsonDiff
     {
-        $oldValues = $old::filterForJsonPatch($old->jsonSerialize());
-        $newValues = $new::filterForJsonPatch($new->jsonSerialize());
+        $oldValues = $old->apiSerialize();
+        $newValues = $new->apiSerialize();
 
         return new JsonDiff($oldValues, $newValues, options: JsonDiff::SKIP_TEST_OPS);
     }

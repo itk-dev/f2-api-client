@@ -7,7 +7,7 @@ namespace ItkDev\F2ApiClient\Model;
 final class Document extends AbstractF2Item
 {
     public string $title;
-    public ?string $description = null;
+    public string $description = '';
     public ?\DateTimeImmutable $createdDate = null;
     public ?\DateTimeImmutable $modifiedDate = null;
 
@@ -33,12 +33,18 @@ final class Document extends AbstractF2Item
     }
 
     #[\Override]
-    public function jsonSerialize(): array
+    public function apiSerialize(): array
     {
         return [
             'Title' => $this->title,
             'Description' => $this->description,
+        ];
+    }
 
+    #[\Override]
+    public function jsonSerialize(): array
+    {
+        return [
             'createdDate' => $this->jsonSerializeDateTime($this->createdDate),
             'modifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
         ] + parent::jsonSerialize();

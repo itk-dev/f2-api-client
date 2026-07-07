@@ -11,15 +11,15 @@ final class Matter extends AbstractF2Item
     public const string TYPE_INBOUND = 'Inbound';
     public const string TYPE_OUTBOUND = 'Outbound';
 
-    public string $matterNumber;
-    public string $title;
-    public string $type;
-    public string $caseNumber;
-    public \DateTimeImmutable $createdDate;
-    public \DateTimeImmutable $modifiedDate;
-    public PartyItemAbstract $createdBy;
-    public PartyItemAbstract $modifiedBy;
-    public ?PartyItemAbstract $responsible;
+    public ?string $matterNumber = null;
+    public ?string $title = null;
+    public ?string $type = null;
+    public ?string $caseNumber = null;
+    public ?\DateTimeImmutable $createdDate = null;
+    public ?\DateTimeImmutable $modifiedDate = null;
+    public ?Party $createdBy = null;
+    public ?Party $modifiedBy = null;
+    public ?Party $responsible = null;
 
     // @mago-ignore analysis:non-documented-property,mixed-argument
     #[\Override]
@@ -34,9 +34,9 @@ final class Matter extends AbstractF2Item
         $this->type = (string) $sxe->Type;
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
-        $this->createdBy = PartyItemAbstract::fromSimpleXMLElement($sxe->CreatedBy);
-        $this->modifiedBy = PartyItemAbstract::fromSimpleXMLElement($sxe->ModifiedBy);
-        $this->responsible = $sxe->Responsible ? PartyItemAbstract::fromSimpleXMLElement($sxe->Responsible) : null;
+        $this->createdBy = Party::fromSimpleXMLElement($sxe->CreatedBy);
+        $this->modifiedBy = Party::fromSimpleXMLElement($sxe->ModifiedBy);
+        $this->responsible = $sxe->Responsible ? Party::fromSimpleXMLElement($sxe->Responsible) : null;
 
         return $this;
     }
@@ -47,19 +47,24 @@ final class Matter extends AbstractF2Item
         return sprintf('Matter %s: %s (#%d)', $this->matterNumber, $this->title, $this->id);
     }
 
-    #[\Override]
-    public function jsonSerialize(): array
+    public function apiSerialize(): array
     {
         return [
             'Title' => $this->title,
             'Type' => $this->type,
+        ];
+    }
 
+    #[\Override]
+    public function jsonSerialize(): array
+    {
+        return [
             'matterNumber' => $this->matterNumber,
             'caseNumber' => $this->caseNumber,
             'createdDate' => $this->jsonSerializeDateTime($this->createdDate),
             'modifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
-            'createdBy' => $this->createdBy->jsonSerialize(),
-            'modifiedBy' => $this->modifiedBy->jsonSerialize(),
+            'createdBy' => $this->createdBy?->jsonSerialize(),
+            'modifiedBy' => $this->modifiedBy?->jsonSerialize(),
             'responsible' => $this->responsible?->jsonSerialize(),
         ] + parent::jsonSerialize();
     }

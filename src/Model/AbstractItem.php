@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-abstract class AbstractItem implements \JsonSerializable, \Stringable
+abstract class AbstractItem implements \JsonSerializable
 {
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {

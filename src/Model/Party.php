@@ -4,37 +4,14 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-final class PartyItemAbstract extends AbstractF2Item
+final class Party extends AbstractF2Item
 {
     // @see resources/f2-rest-docs/f2-rest-docs-v13s.html#56
 
     public string $name;
-
-    // EMail
-    // string
-    // Contact e-mail.
     public string $email;
-
-    // Type
-    // string
-    // Party type (see below).
     public string $type;
-
-    // PartyNumber
-    // int
-    // Internal identiﬁer of party - displayed in F2 party details window.
     public int $partyNumber;
-
-    // SynchronizationKey
-    // string
-    // Identiﬁer for synchronizing parties with external repositories such as Windows
-    // Active Directory.
-    // CPRCVR
-    // string
-    // Personal security number or VAT number.
-    // CVR_P
-    // string
-    // Danish P-number extension to CVR (VAT) number.
 
     // @mago-ignore analysis:non-documented-property
     #[\Override]
