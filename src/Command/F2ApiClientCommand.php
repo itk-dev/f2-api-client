@@ -27,7 +27,7 @@ class F2ApiClientCommand
         ?string $arg = null,
         #[Option(description: 'Show links.')]
         bool $showLinks = false,
-        #[Option(description: 'Path to to cache directory. If not specified, no requests will be cached.')]
+        #[Option(description: 'Path to to cache directory. If not specified, the default file system cache directory will be used.')]
         ?string $cacheDirectory = null,
     ): int {
         $client = $this->createClient(cacheDirectory: $cacheDirectory);
