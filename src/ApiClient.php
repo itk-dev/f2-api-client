@@ -521,7 +521,8 @@ class ApiClient
 
         $url = $index[$rel]['href'] ?? null;
         if (null === $url) {
-            throw $this->createRuntimeException(sprintf('Cannot get rel %s', $rel));
+            $message = sprintf('Cannot get rel %s', $rel);
+            throw $this->createRuntimeException($message);
         }
 
         return $this->replacePlaceholders($url, $values);
@@ -547,13 +548,15 @@ class ApiClient
                 // @mago-ignore analysis:mixed-array-access,non-documented-property
                 $searchUrl = (string) $sxe->Url['template'];
                 if (!filter_var($searchUrl, FILTER_VALIDATE_URL)) {
-                    throw $this->createRuntimeException(sprintf('Cannot get search template URL for %s', $url));
+                    $message = sprintf('Cannot get search template URL for %s', $url);
+                    throw $this->createRuntimeException($message);
                 }
 
                 return $searchUrl;
             });
         } catch (\Exception $e) {
-            throw $this->createRuntimeException(sprintf('Cannot get search URL for rel %s', $rel), previous: $e);
+            $message = sprintf('Cannot get search URL for rel %s', $rel);
+            throw $this->createRuntimeException($message, previous: $e);
         }
 
         return $this->replacePlaceholders($url, $values);
@@ -570,7 +573,8 @@ class ApiClient
             function (array $matches) use ($url, $values): string {
                 $name = $matches['name'];
                 if (!array_key_exists($name, $values)) {
-                    throw $this->createRuntimeException(sprintf('Missing value %s for URL %s', $name, $url));
+                    $message = sprintf('Missing value %s for URL %s', $name, $url);
+                    throw $this->createRuntimeException($message);
                 }
 
                 return rawurlencode((string) $values[$name]);
@@ -594,14 +598,16 @@ class ApiClient
     protected function computeCacheKey(array $context): string
     {
         if (0 === count($context)) {
-            throw new RuntimeException('Cache key context cannot be empty');
+            $message = 'Cache key context cannot be empty';
+            throw $this->createRuntimeException($message);
         }
         try {
             return sha1(json_encode($this->options + [$context], JSON_THROW_ON_ERROR));
         } catch (\Exception $exception) {
             // JSON encode context without throwing any exceptions.
             $encodedContext = (string) json_encode($context);
-            throw new RuntimeException(sprintf('Cannot compute cache key for context %s', $encodedContext), previous: $exception);
+            $message = sprintf('Cannot compute cache key for context %s', $encodedContext);
+            throw $this->createRuntimeException($message, previous: $exception);
         }
     }
 
@@ -656,7 +662,8 @@ class ApiClient
         $headers = $response->getHeaders();
         $name = strtolower($name);
         if (!array_key_exists($name, $headers) || 0 === count($headers[$name])) {
-            throw $this->createRuntimeException(sprintf('Header "%s" not found.', $name));
+            $message = sprintf('Header "%s" not found.', $name);
+            throw $this->createRuntimeException($message);
         }
 
         return reset($headers[$name]);
