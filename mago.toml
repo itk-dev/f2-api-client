@@ -1,0 +1,86 @@
+#:schema https://mago.carthage.software/1.42.0/schema.json
+# Welcome to Mago!
+# For full documentation, see https://mago.carthage.software/1.42.0/en/tools/overview/
+version = "1"
+php-version = "8.3.0"
+
+[source]
+workspace = "."
+paths = ["src/"]
+includes = ["vendor"]
+excludes = []
+
+[source.glob]
+literal-separator = true
+
+[formatter]
+print-width = 120
+tab-width = 4
+use-tabs = false
+
+# php-cs-fixer likes these
+empty-line-before-return = true
+
+space-around-concatenation-binary-operator = false
+# empty-line-after-class-like-open=true
+# method-brace-style = "always-next-line"
+inline-empty-constructor-braces = false
+space-before-arrow-function-parameter-list-parenthesis = true
+inline-empty-classlike-braces = false
+preserve-breaking-parameter-list = true
+preserve-breaking-argument-list = true
+preserve-breaking-conditional-expression = true
+
+[linter]
+integrations = ["symfony"]
+
+[linter.rules]
+ambiguous-function-call = { enabled = false }
+no-boolean-flag-parameter = { enabled = false }
+literal-named-argument = { enabled = false }
+halstead = {
+  effort-threshold = 7000,
+  difficulty-threshold = 22
+}
+
+# Our Model classes have a lot of constructor arguments.
+excessive-parameter-list = {
+  constructor-threshold = 10
+}
+
+# Our API client has many methods.
+too-many-methods = {
+  threshold = 33
+}
+
+# Our API client is not really that complex …
+cyclomatic-complexity = {
+  threshold = 47
+}
+
+too-many-properties = {
+  threshold = 11
+}
+
+kan-defect = {
+  threshold = 2.48
+}
+
+[analyzer]
+plugins = []
+find-unused-definitions = true
+find-unused-expressions = false
+analyze-dead-code = false
+memoize-properties = true
+allow-possibly-undefined-array-keys = true
+check-throws = false
+unchecked-exceptions = ["Error", "LogicException"]
+unchecked-exception-classes = []
+check-missing-override = false
+find-unused-parameters = false
+strict-list-index-checks = false
+strict-array-index-existence = false
+allow-array-truthy-operand = false
+no-boolean-literal-comparison = false
+check-missing-type-hints = false
+register-super-globals = true

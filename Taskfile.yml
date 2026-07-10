@@ -1,0 +1,148 @@
+# https://taskfile.dev
+
+version: '3'
+
+includes:
+  f2-rest-docs:
+    taskfile: resources/f2-rest-docs/
+    dir: resources/f2-rest-docs/
+
+tasks:
+  default:
+    cmds:
+      - task --list
+    silent: true
+
+  compose:
+    cmds:
+      - docker compose {{.TASK_ARGS}} {{.CLI_ARGS}}
+    internal: true
+
+  composer:
+    desc: Run composer inside docker compose setup, e.g. `task {{.TASK}} -- install`
+    cmds:
+      - task: compose
+        vars:
+          TASK_ARGS: run --rm phpfpm composer {{.TASK_ARGS}}
+
+  coding-standards:apply:
+    - task: coding-standards:composer:apply
+    - task: coding-standards:markdown:apply
+    - task: coding-standards:php:apply
+    - task: coding-standards:php:mago:apply
+    - task: coding-standards:yaml:apply
+
+  coding-standards:check:
+    - task: coding-standards:composer:check
+    - task: coding-standards:markdown:check
+    - task: coding-standards:php:check
+    - task: coding-standards:php:mago:check
+    - task: coding-standards:yaml:check
+
+  coding-standards:composer:apply:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm composer normalize
+
+  coding-standards:composer:check:
+    - task: coding-standards:composer:apply
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm composer normalize --dry-run
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm composer validate
+
+  coding-standards:markdown:apply:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm markdownlint markdownlint '**/*.md' --fix
+
+  coding-standards:markdown:check:
+    - task: coding-standards:markdown:apply
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm markdownlint markdownlint '**/*.md'
+
+  coding-standards:php:apply:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm vendor/bin/php-cs-fixer fix
+
+  coding-standards:php:check:
+    - task: coding-standards:php:apply
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm vendor/bin/php-cs-fixer fix --dry-run --diff
+
+  coding-standards:php:mago:apply:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm mago format
+
+  coding-standards:php:mago:check:
+    - task: coding-standards:php:mago:apply
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm mago lint
+
+  coding-standards:yaml:apply:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm prettier '**/*.{yml,yaml}' --write
+
+  coding-standards:yaml:check:
+    - task: coding-standards:yaml:apply
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm prettier '**/*.{yml,yaml}' --check
+
+  code-analysis:php:
+    - task: code-analysis:php:mago
+    - task: code-analysis:php:phpstan
+
+  code-analysis:php:mago:
+    - task: mago:analyze
+
+  code-analysis:php:phpstan:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm vendor/bin/phpstan
+
+  # https://mago.carthage.software/latest/en/guide/getting-started/
+  mago:run:
+    desc: 'Run all Mago steps (cf. https://mago.carthage.software/latest/en/guide/getting-started/)'
+    cmds:
+      - task: mago:lint
+      - task: mago:format
+      - task: mago:analyze
+
+  mago:lint: &mago_command
+    desc: 'Run `mago {{.TASK | replace "mago:" "" }}` inside docker compose setup'
+    cmds:
+      - task: compose
+        vars:
+          TASK_ARGS: run --rm mago {{.TASK | replace "mago:" "" }}
+
+  mago:format: *mago_command
+  mago:analyze: *mago_command
+
+  f2-api-client:run:
+    desc: "Run bin/f2-api-client inside docker compose setup, e.g. `task {{.TASK}} -- caseSearch 'test'`"
+    cmds:
+      - task: compose
+        vars:
+          TASK_ARGS: run --quiet --rm phpfpm php bin/f2-api-client
+
+  f2-api-client:debug:
+    desc: "Debug bin/f2-api-client inside docker compose setup, e.g. `task {{.TASK}} -- caseSearch 'test'`"
+    cmds:
+      - task: compose
+        vars:
+          TASK_ARGS: run --quiet --env PHP_XDEBUG_MODE=debug --rm phpfpm php bin/f2-api-client
+
+  f2-rest-docs:serve:
+    desc: Build and serve F2 REST documentation as HTML
+    cmds:
+      - task: f2-rest-docs:html:generate
+      - docker compose run --rm --publish 8787:8787 phpfpm php -S 0.0.0.0:8787 -t resources/f2-rest-docs/

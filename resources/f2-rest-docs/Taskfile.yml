@@ -1,0 +1,22 @@
+# yaml-language-server: $schema=https://taskfile.dev/schema.json
+version: '3'
+
+tasks:
+  default:
+    - task --list
+
+  html:generate:
+    desc: Generate HTML from PDF
+    deps:
+      - html:clean
+    cmds:
+      - docker run --volume $PWD:/app --workdir /app --rm minidocks/poppler pdftohtml f2-rest-docs-v13.pdf
+      # Clean up
+      - docker run --volume $PWD:/app --workdir /app --rm minidocks/poppler sed -i 's/target=\\"contents\\"/target="contents"/' f2-rest-docs-v13_ind.html
+      # Add script in head element
+      - docker run --volume $PWD:/app --workdir /app --rm minidocks/poppler sed -i '/<head>/r script.html' f2-rest-docs-v13_ind.html
+
+  html:clean:
+    desc: Remove all generate HTML stuff
+    cmds:
+      - cmd: rm -f f2-rest-docs-*.{html,png}
