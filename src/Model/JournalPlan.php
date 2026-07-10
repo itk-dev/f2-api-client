@@ -22,20 +22,4 @@ final class JournalPlan extends AbstractF2Item
 
         return $this;
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        $serialized =
-            [
-                'title' => $this->title,
-                'path' => $this->path,
-                'code' => $this->code,
-            ] + parent::jsonSerialize();
-
-        // JournalPlan doesn't have an ID.
-        unset($serialized['id']);
-
-        return $serialized;
-    }
 }

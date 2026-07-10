@@ -55,17 +55,4 @@ final class CaseFile extends AbstractF2Item
             'Deadline' => $this->deadline,
         ];
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return [
-            'journalPlan' => $this->journalPlan?->jsonSerialize(),
-            'processInstruction' => $this->processInstruction?->jsonSerialize(),
-            'createdDate' => $this->jsonSerializeDateTime($this->createdDate),
-            'modifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
-            'modifiedBy' => $this->modifiedBy?->jsonSerialize(),
-            'responsible' => $this->responsible?->jsonSerialize(),
-        ] + parent::jsonSerialize();
-    }
 }

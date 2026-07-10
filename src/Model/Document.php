@@ -40,13 +40,4 @@ final class Document extends AbstractF2Item
             'Description' => $this->description,
         ];
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return [
-            'createdDate' => $this->jsonSerializeDateTime($this->createdDate),
-            'modifiedDate' => $this->jsonSerializeDateTime($this->modifiedDate),
-        ] + parent::jsonSerialize();
-    }
 }

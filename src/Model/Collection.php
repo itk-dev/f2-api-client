@@ -29,13 +29,4 @@ final class Collection extends AbstractItem
 
         return $this;
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return [
-            'title' => $this->title,
-            'items' => array_map(static fn (Item $item) => $item->jsonSerialize(), $this->items),
-        ];
-    }
 }

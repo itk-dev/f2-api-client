@@ -33,16 +33,4 @@ final class Party extends AbstractF2Item
     {
         return sprintf('Party: %s (%s)', $this->name, $this->type);
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return [
-            'name' => $this->name,
-            'email' => $this->email,
-            'type' => $this->type,
-            'id' => $this->id,
-            'partyNumber' => $this->partyNumber,
-        ] + parent::jsonSerialize();
-    }
 }

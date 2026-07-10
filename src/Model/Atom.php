@@ -28,15 +28,4 @@ final class Atom extends AbstractItem
     {
         return sprintf('%s (%s)', $this->title, $this->id);
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return [
-            'id' => $this->id,
-            'title' => $this->title,
-            'published' => $this->jsonSerializeDateTime($this->published),
-            'updated' => $this->jsonSerializeDateTime($this->updated),
-        ];
-    }
 }

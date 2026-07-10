@@ -74,10 +74,4 @@ final class Links extends AbstractItem
 
         return $link['href'];
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return $this->links;
-    }
 }

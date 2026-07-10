@@ -41,21 +41,4 @@ abstract class AbstractF2Item extends AbstractItem implements \Stringable
     {
         return [];
     }
-
-    /**
-     * Serialize with the names (paths) needed for JSON patch.
-     *
-     * Only names starting with a capital letter will be included in JSON patch'ing (cf. self::filterForJsonPatch).
-     *
-     * @see self::filterForJsonPatch()
-     */
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return $this->apiSerialize()
-        + [
-            'id' => $this->id,
-            'links' => $this->links->jsonSerialize(),
-        ];
-    }
 }

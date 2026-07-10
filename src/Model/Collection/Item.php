@@ -25,12 +25,4 @@ final class Item extends AbstractItem
     {
         return sprintf('%s (#%d)', $this->title, $this->id);
     }
-
-    #[\Override]
-    public function jsonSerialize(): array
-    {
-        return [
-            'title' => $this->title,
-        ];
-    }
 }

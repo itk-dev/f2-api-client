@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-abstract class AbstractItem implements \JsonSerializable
+abstract class AbstractItem
 {
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
@@ -45,15 +45,5 @@ abstract class AbstractItem implements \JsonSerializable
         $appTimeZone = new \DateTimeZone('UTC');
 
         return (new \DateTimeImmutable((string) $value, $apiTimeZone))->setTimeZone($appTimeZone);
-    }
-
-    /**
-     * @return array<string, mixed>
-     */
-    abstract public function jsonSerialize(): array;
-
-    protected function jsonSerializeDateTime(?\DateTimeImmutable $dateTime): ?string
-    {
-        return $dateTime?->format(\DateTimeInterface::ATOM);
     }
 }
