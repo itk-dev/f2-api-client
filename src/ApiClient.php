@@ -179,11 +179,7 @@ class ApiClient
     public function caseFileUpdate(CaseFile $caseFile, CaseFile $updatedCaseFile): bool
     {
         $url = $caseFile->links->getUrl('self');
-        $diff = new JsonDiff(
-            $caseFile->apiSerialize(),
-            $updatedCaseFile->apiSerialize(),
-            options: JsonDiff::SKIP_TEST_OPS,
-        );
+        $diff = $this->computeDiff($caseFile, $updatedCaseFile);
         $response = $this->request(Request::METHOD_PATCH, $url, [
             'json' => $diff->getPatch()->jsonSerialize(),
         ]);
