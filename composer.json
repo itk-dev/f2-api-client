@@ -4,6 +4,7 @@
     "license": "MIT",
     "type": "library",
     "require": {
+        "php": "^8.3",
         "ext-simplexml": "*",
         "psr/cache": "^2.0 || ^3.0",
         "swaggest/json-diff": "^3.12",
@@ -14,7 +15,6 @@
         "symfony/options-resolver": "^6.4 || ^7.4 || ^8.1"
     },
     "require-dev": {
-        "php": "^8.3",
         "ergebnis/composer-normalize": "^2.52",
         "friendsofphp/php-cs-fixer": "^3.95",
         "phpstan/phpstan": "^2.2"
