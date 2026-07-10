@@ -92,7 +92,7 @@ class ApiClient
     public function getServiceIndex(): array
     {
         $cache = $this->getCache();
-        $cacheKey = sha1(__METHOD__);
+        $cacheKey = $this->computeCacheKey(['method' => __METHOD__]);
 
         // @mago-ignore analysis:less-specific-return-statement
         return $cache->get($cacheKey, function (CacheItemInterface $item): array {
@@ -412,7 +412,7 @@ class ApiClient
     protected function getAccessToken(): array
     {
         $cache = $this->getCache();
-        $cacheKey = sha1(__METHOD__);
+        $cacheKey = $this->computeCacheKey(['method' => __METHOD__]);
 
         return $cache->get($cacheKey, function (CacheItemInterface $item): array {
             $client = $this->client();
@@ -536,7 +536,7 @@ class ApiClient
 
         try {
             $cache = $this->getCache();
-            $cacheKey = sha1(__METHOD__.'|||'.$rel);
+            $cacheKey = $this->computeCacheKey(['method' => __METHOD__, 'rel' => $rel]);
 
             $url = $cache->get($cacheKey, function (CacheItemInterface $item) use ($url) {
                 $item->expiresAfter((int) $this->options['cache_item_lifetime']);
@@ -584,6 +584,25 @@ class ApiClient
         $pool = $this->options['cache_item_pool'];
 
         return new ProxyAdapter(pool: $pool);
+    }
+
+    /**
+     * Compute a cache key based on the client configuration and a context.
+     *
+     * @param array<string, string> $context
+     */
+    protected function computeCacheKey(array $context): string
+    {
+        if (0 === count($context)) {
+            throw new RuntimeException('Cache key context cannot be empty');
+        }
+        try {
+            return sha1(json_encode($this->options + [$context], JSON_THROW_ON_ERROR));
+        } catch (\Exception $exception) {
+            // JSON encode context without throwing any exceptions.
+            $encodedContext = (string) json_encode($context);
+            throw new RuntimeException(sprintf('Cannot compute cache key for context %s', $encodedContext), previous: $exception);
+        }
     }
 
     /**

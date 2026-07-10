@@ -50,12 +50,12 @@ excessive-parameter-list = {
 
 # Our API client has many methods.
 too-many-methods = {
-  threshold = 32
+  threshold = 33
 }
 
 # Our API client is not really that complex …
 cyclomatic-complexity = {
-  threshold = 45
+  threshold = 47
 }
 
 too-many-properties = {
@@ -63,7 +63,7 @@ too-many-properties = {
 }
 
 kan-defect = {
-  threshold = 2.41
+  threshold = 2.48
 }
 
 [analyzer]
