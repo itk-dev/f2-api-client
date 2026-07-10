@@ -180,13 +180,15 @@ class ApiClient
     {
         $url = $caseFile->links->getUrl('self');
         $diff = $this->computeDiff($caseFile, $updatedCaseFile);
-        $response = $this->request(Request::METHOD_PATCH, $url, [
-            'json' => $diff->getPatch()->jsonSerialize(),
-        ]);
+        if ($diff->getDiffCnt() > 0) {
+            $response = $this->request(Request::METHOD_PATCH, $url, [
+                'json' => $diff->getPatch()->jsonSerialize(),
+            ]);
 
-        if (Response::HTTP_OK !== $response->getStatusCode()) {
-            $message = sprintf('Cannot update case %s', $caseFile);
-            throw $this->createRuntimeException($message, response: $response);
+            if (Response::HTTP_OK !== $response->getStatusCode()) {
+                $message = sprintf('Cannot update case %s', $caseFile);
+                throw $this->createRuntimeException($message, response: $response);
+            }
         }
 
         return true;
