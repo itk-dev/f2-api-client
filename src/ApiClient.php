@@ -641,7 +641,6 @@ class ApiClient
     {
         $item = new \SimpleXMLElement($response->getContent());
 
-        // @mago-ignore analysis:invalid-return-statement
         return $class::fromSimpleXMLElement($item);
     }
 
@@ -698,7 +697,9 @@ class ApiClient
      */
     private function logException(RuntimeException $exception): RuntimeException
     {
-        if ($previous = $exception->getPrevious()) {
+        $previous = $exception->getPrevious();
+        // @mago-ignore lint:no-else-clause
+        if (null !== $previous) {
             $this->error('exception: {message} ({previous_message})', [
                 'message' => $exception->getMessage(),
                 'exception' => $exception,

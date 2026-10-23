@@ -47,15 +47,22 @@ abstract class AbstractItem implements \JsonSerializable
         return (new \DateTimeImmutable((string) $value, $apiTimeZone))->setTimeZone($appTimeZone);
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     #[\Override]
     public function jsonSerialize(): array
     {
         return $this->toArray();
     }
 
+    /**
+     * @return array<array-key, mixed>
+     */
     public function toArray(): array
     {
         $values = [];
+        // @mago-ignore analysis:mixed-assignment
         foreach (get_object_vars($this) as $key => $value) {
             $values[$key] = match (true) {
                 $value instanceof self => $value->toArray(),

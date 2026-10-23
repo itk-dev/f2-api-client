@@ -82,11 +82,7 @@ class F2ApiClientCommand extends Command
             'matterById' => $client->matterById((int) $arg),
             'matterByMatterNumber' => $client->matterByMatterNumber((string) $arg),
             'documentById' => $client->documentById((int) $arg),
-            default => throw new InvalidArgumentException(sprintf(
-                'Invalid action: %s; Must be on of %s.',
-                $action,
-                implode(', ', self::ACTIONS),
-            )),
+            default => throw new InvalidArgumentException(sprintf('Invalid action: %s; Must be on of %s.', $action, implode(', ', self::ACTIONS))),
         };
 
         $response = $this->responseToArray($response);
