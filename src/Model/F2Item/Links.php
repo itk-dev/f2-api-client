@@ -74,4 +74,10 @@ final class Links extends AbstractItem
 
         return $link['href'];
     }
+
+    #[\Override]
+    public function toArray(): array
+    {
+        return $this->links;
+    }
 }
