@@ -698,10 +698,18 @@ class ApiClient
      */
     private function logException(RuntimeException $exception): RuntimeException
     {
-        $this->error('exception: {message}', [
-            'message' => $exception->getMessage(),
-            'exception' => $exception,
-        ]);
+        if ($previous = $exception->getPrevious()) {
+            $this->error('exception: {message} ({previous_message})', [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+                'previous_message' => $previous->getMessage(),
+            ]);
+        } else {
+            $this->error('exception: {message}', [
+                'message' => $exception->getMessage(),
+                'exception' => $exception,
+            ]);
+        }
 
         return $exception;
     }
