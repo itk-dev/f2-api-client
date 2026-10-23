@@ -17,8 +17,47 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Style\SymfonyStyle;
 
 #[AsCommand(name: 'f2:api:client')]
-class F2ApiClientCommand
+class F2ApiClientCommand extends Command
 {
+    public const string ACTION_GET_SERVICE_INDEX = 'getServiceIndex';
+    public const string ACTION_CASE_SEARCH = 'caseSearch';
+    public const string ACTION_CASE_BY_ID = 'caseById';
+    public const string ACTION_MATTER_SEARCH = 'matterSearch';
+    public const string ACTION_MATTER_BY_ID = 'matterById';
+    public const string ACTION_MATTER_BY_MATTER_NUMBER = 'matterByMatterNumber';
+    public const string ACTION_DOCUMENT_BY_ID = 'documentById';
+
+    private const array ACTIONS = [
+        self::ACTION_GET_SERVICE_INDEX,
+        self::ACTION_CASE_SEARCH,
+        self::ACTION_CASE_BY_ID,
+        self::ACTION_MATTER_SEARCH,
+        self::ACTION_MATTER_BY_ID,
+        self::ACTION_MATTER_BY_MATTER_NUMBER,
+        self::ACTION_DOCUMENT_BY_ID,
+    ];
+
+    public function getHelp(): string
+    {
+        return <<<'EOF'
+Call F2 API endpoint:
+
+%command.name% getServiceIndex
+%command.name% caseSearch <search-terms>
+%command.name% caseById <case-id>
+%command.name% matterSearch <search-terms>
+%command.name% matterById <matter-id>
+%command.name% matterByMatterNumber <matter-number>
+%command.name% documentById <document-id>
+
+Examples:
+
+%command.name% caseSearch "2026 - 618"
+%command.name% matterSearch "test"
+
+EOF;
+    }
+
     public function __invoke(
         SymfonyStyle $io,
         #[Argument]
@@ -43,7 +82,7 @@ class F2ApiClientCommand
             'matterById' => $client->matterById((int) $arg),
             'matterByMatterNumber' => $client->matterByMatterNumber((string) $arg),
             'documentById' => $client->documentById((int) $arg),
-            default => throw new InvalidArgumentException(sprintf('Invalid action: %s', $action)),
+            default => throw new InvalidArgumentException(sprintf('Invalid action: %s; Must be on of %s.', $action, implode(', ', self::ACTIONS))),
         };
 
         $response = $this->responseToArray($response);
