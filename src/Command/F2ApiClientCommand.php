@@ -40,22 +40,22 @@ class F2ApiClientCommand extends Command
     public function getHelp(): string
     {
         return <<<'EOF'
-Call F2 API endpoint:
+            Call F2 API endpoint:
 
-%command.name% getServiceIndex
-%command.name% caseSearch <search-terms>
-%command.name% caseById <case-id>
-%command.name% matterSearch <search-terms>
-%command.name% matterById <matter-id>
-%command.name% matterByMatterNumber <matter-number>
-%command.name% documentById <document-id>
+            %command.name% getServiceIndex
+            %command.name% caseSearch <search-terms>
+            %command.name% caseById <case-id>
+            %command.name% matterSearch <search-terms>
+            %command.name% matterById <matter-id>
+            %command.name% matterByMatterNumber <matter-number>
+            %command.name% documentById <document-id>
 
-Examples:
+            Examples:
 
-%command.name% caseSearch "2026 - 618"
-%command.name% matterSearch "test"
+            %command.name% caseSearch "2026 - 618"
+            %command.name% matterSearch "test"
 
-EOF;
+            EOF;
     }
 
     public function __invoke(
@@ -82,7 +82,11 @@ EOF;
             'matterById' => $client->matterById((int) $arg),
             'matterByMatterNumber' => $client->matterByMatterNumber((string) $arg),
             'documentById' => $client->documentById((int) $arg),
-            default => throw new InvalidArgumentException(sprintf('Invalid action: %s; Must be on of %s.', $action, implode(', ', self::ACTIONS))),
+            default => throw new InvalidArgumentException(sprintf(
+                'Invalid action: %s; Must be on of %s.',
+                $action,
+                implode(', ', self::ACTIONS),
+            )),
         };
 
         $response = $this->responseToArray($response);
