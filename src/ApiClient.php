@@ -17,6 +17,7 @@ use Psr\Cache\CacheItemInterface;
 use Psr\Cache\CacheItemPoolInterface;
 use Psr\Log\LoggerAwareTrait;
 use Psr\Log\LoggerTrait;
+use Psr\Log\LogLevel;
 use Swaggest\JsonDiff\JsonDiff;
 use Symfony\Component\Cache\Adapter\ProxyAdapter;
 use Symfony\Component\HttpClient\HttpClient;
@@ -37,6 +38,7 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  *   f2_username: string,
  *   cache_item_pool: CacheItemPoolInterface,
  *   cache_item_lifetime?: int,
+ *   log_level?: string,
  * }
  * @phpstan-type OptionsResolved array{
  *    api_uri: non-empty-string,
@@ -45,7 +47,9 @@ use Symfony\Contracts\HttpClient\ResponseInterface;
  *    f2_username: non-empty-string,
  *    cache_item_pool: CacheItemPoolInterface,
  *    cache_item_lifetime: int,
- *  }*/
+ *    log_level: string,
+ *  }
+ */
 class ApiClient
 {
     use LoggerAwareTrait;
@@ -509,7 +513,8 @@ class ApiClient
             ->setRequired('cache_item_pool')
             ->setAllowedTypes('cache_item_pool', CacheItemPoolInterface::class)
             ->setDefault('cache_item_lifetime', 86_400)
-            ->setAllowedTypes('cache_item_lifetime', 'int');
+            ->setAllowedTypes('cache_item_lifetime', 'int')
+            ->setDefault('log_level', LogLevel::ERROR);
     }
 
     /**
@@ -647,10 +652,33 @@ class ApiClient
     // @phpstan-ignore missingType.iterableValue
     public function log($level, \Stringable|string $message, array $context = []): void
     {
+        if ($this->getLogLevelSeverity((string) $level) < $this->getLogLevelSeverity($this->options['log_level'])) {
+            return;
+        }
+
         if (null !== $this->logger) {
             $message = '[F2 API client] '.(string) $message;
             $this->logger->log($level, $message, $context);
         }
+    }
+
+    // Psr log levels ordered from lowest to highest severity.
+    private const LOG_LEVELS = [
+        LogLevel::DEBUG,
+        LogLevel::INFO,
+        LogLevel::NOTICE,
+        LogLevel::WARNING,
+        LogLevel::ERROR,
+        LogLevel::CRITICAL,
+        LogLevel::ALERT,
+        LogLevel::EMERGENCY,
+    ];
+
+    private function getLogLevelSeverity(string $level): int
+    {
+        $value = array_search($level, self::LOG_LEVELS, true);
+
+        return false === $value ? -1 : $value;
     }
 
     /**

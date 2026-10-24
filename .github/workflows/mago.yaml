@@ -21,29 +21,15 @@ jobs:
             - run: |
                   docker compose run --rm phpfpm composer install
 
-            - run: |
+            - name: lint
+              run: |
                   docker compose run --rm mago lint
 
-    mago-format:
-        name: Mago - format
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v7
-
-            - run: |
-                  docker compose run --rm phpfpm composer install
-
-            - run: |
+            - name: format
+              if: false # Mago and PHP CS Fixer does not (yet) agree on how to format code.
+              run: |
                   docker compose run --rm mago format --check
 
-    mago-analyze:
-        name: Mago - analyze
-        runs-on: ubuntu-latest
-        steps:
-            - uses: actions/checkout@v7
-
-            - run: |
-                  docker compose run --rm phpfpm composer install
-
-            - run: |
+            - name: analyze
+              run: |
                   docker compose run --rm mago analyze

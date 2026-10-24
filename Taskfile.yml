@@ -76,9 +76,10 @@ tasks:
         TASK_ARGS: run --rm phpfpm vendor/bin/php-cs-fixer fix --dry-run --diff
 
   coding-standards:php:mago:apply:
-    - task: compose
-      vars:
-        TASK_ARGS: run --rm mago format
+    # Mago and PHP CS Fixer does not (yet) agree on how to format code.
+    # - task: compose
+    #   vars:
+    #     TASK_ARGS: run --rm mago format
 
   coding-standards:php:mago:check:
     - task: coding-standards:php:mago:apply
