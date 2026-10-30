@@ -56,6 +56,7 @@ class ApiClient
     use LoggerTrait;
 
     private const string REL_CASE_BY_ID = 'http://cbrain.com/casefile/rel/case-by-id';
+    private const string REL_CASE_BY_CASE_NUMBER = 'http://cbrain.com/casefile/rel/case-by-case-number';
     private const string REL_CASE_SEARCH = 'http://cbrain.com/casefile/rel/case-search';
     private const string REL_CONTENT = 'http://cbrain.com/casefile/rel/content';
     private const string REL_CREATE_CASE = 'http://cbrain.com/casefile/rel/create-case';
@@ -139,6 +140,20 @@ class ApiClient
     {
         $url = $this->getRequestUrl(self::REL_CASE_BY_ID, [
             'id' => $id,
+        ]);
+        $response = $this->request(Request::METHOD_GET, $url);
+
+        if (Response::HTTP_OK !== $response->getStatusCode()) {
+            throw $this->createApiException($response);
+        }
+
+        return $this->createItemResult($response, CaseFile::class);
+    }
+
+    public function caseByCaseNumber(string $caseNumber): CaseFile
+    {
+        $url = $this->getRequestUrl(self::REL_CASE_BY_CASE_NUMBER, [
+            'caseNumber' => $caseNumber,
         ]);
         $response = $this->request(Request::METHOD_GET, $url);
 
