@@ -1,0 +1,25 @@
+name: Code analysis
+
+env:
+    COMPOSE_USER: runner
+
+on:
+    pull_request:
+    push:
+        branches:
+            - main
+            - develop
+
+jobs:
+    code-analysis-php:
+        runs-on: ubuntu-latest
+        strategy:
+            fail-fast: false
+        steps:
+            - uses: actions/checkout@v7
+
+            - run: |
+                  docker compose run --rm phpfpm composer install
+
+            - run: |
+                  docker compose run --rm phpfpm php vendor/bin/phpstan
