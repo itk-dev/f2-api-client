@@ -38,13 +38,18 @@ abstract class AbstractItem implements \JsonSerializable
         return $items;
     }
 
-    protected function createDateTime(\SimpleXMLElement|string $value): \DateTimeImmutable
+    protected function createDateTime(\SimpleXMLElement|string $value): ?\DateTimeImmutable
     {
         // @todo Adjust for time zones!
         $apiTimeZone = new \DateTimeZone('UTC');
         $appTimeZone = new \DateTimeZone('UTC');
 
-        return (new \DateTimeImmutable((string) $value, $apiTimeZone))->setTimeZone($appTimeZone);
+        $value = trim((string) $value);
+        if ('' === $value) {
+            return null;
+        }
+
+        return (new \DateTimeImmutable($value, $apiTimeZone))->setTimeZone($appTimeZone);
     }
 
     /**
