@@ -11,9 +11,16 @@ final class Matter extends AbstractF2Item
     public const string TYPE_INBOUND = 'Inbound';
     public const string TYPE_OUTBOUND = 'Outbound';
 
+    public const string ACCESS_LEVEL_INVOLVED = 'Involved';
+    public const string ACCESS_LEVEL_UNIT = 'Unit';
+    public const string ACCESS_LEVEL_ALL = 'All';
+
+    public const int TITLE_MAX_LENGTH = 255;
+
     public ?string $matterNumber = null;
     public ?string $title = null;
     public ?string $type = null;
+    public ?string $accessLevel = null;
     public ?string $caseNumber = null;
     public ?\DateTimeImmutable $createdDate = null;
     public ?\DateTimeImmutable $modifiedDate = null;
@@ -32,6 +39,7 @@ final class Matter extends AbstractF2Item
         $this->caseNumber = (string) $sxe->CaseNumber;
         $this->title = (string) $sxe->Title;
         $this->type = (string) $sxe->Type;
+        $this->accessLevel = (string) $sxe->AccessLevel;
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
         $this->createdBy = Party::fromSimpleXMLElement($sxe->CreatedBy);
@@ -52,6 +60,7 @@ final class Matter extends AbstractF2Item
         return [
             'Title' => $this->title,
             'Type' => $this->type,
+            'AccessLevel' => $this->accessLevel,
         ];
     }
 }

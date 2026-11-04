@@ -6,6 +6,8 @@ namespace ItkDev\F2ApiClient\Model;
 
 final class Document extends AbstractF2Item
 {
+    public const int TITLE_MAX_LENGTH = 255;
+
     public string $title;
     public string $description = '';
     public ?\DateTimeImmutable $createdDate = null;
