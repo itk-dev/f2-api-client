@@ -8,10 +8,10 @@ final class Party extends AbstractF2Item
 {
     // @see resources/f2-rest-docs/f2-rest-docs-v13s.html#56
 
-    public string $name;
-    public string $email;
-    public string $type;
-    public int $partyNumber;
+    public ?string $name = null;
+    public ?string $email = null;
+    public ?string $type = null;
+    public ?int $partyNumber = null;
 
     // @mago-ignore analysis:non-documented-property
     #[\Override]
@@ -32,5 +32,16 @@ final class Party extends AbstractF2Item
     public function __toString(): string
     {
         return sprintf('Party: %s (%s)', $this->name, $this->type);
+    }
+
+    #[\Override]
+    public function apiSerialize(): array
+    {
+        return array_filter([
+            'name' => $this->name,
+            'email' => $this->email,
+            'type' => $this->type,
+            'partyNumber' => $this->partyNumber,
+        ]);
     }
 }

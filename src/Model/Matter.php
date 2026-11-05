@@ -57,13 +57,15 @@ final class Matter extends AbstractF2Item
         return sprintf('Matter %s: %s (#%d)', $this->matterNumber, $this->title, $this->id);
     }
 
+    #[\Override]
     public function apiSerialize(): array
     {
-        return [
+        return array_filter([
             'Title' => $this->title,
             'Type' => $this->type,
             'AccessLevel' => $this->accessLevel,
-            'Archived' => $this->archived ? 'true' : 'false',
-        ];
+            'Archived' => $this->formatBoolean($this->archived ?? false),
+            'Responsible' => $this->responsible?->apiSerialize(),
+        ]);
     }
 }
