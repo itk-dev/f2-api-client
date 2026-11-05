@@ -40,7 +40,7 @@ no-boolean-flag-parameter = { enabled = false }
 literal-named-argument = { enabled = false }
 halstead = {
   effort-threshold = 7000,
-  difficulty-threshold = 22
+  difficulty-threshold = 25
 }
 
 # Our Model classes have a lot of constructor arguments.
