@@ -41,7 +41,7 @@ final class Matter extends AbstractF2Item
         $this->title = (string) $sxe->Title;
         $this->type = (string) $sxe->Type;
         $this->accessLevel = (string) $sxe->AccessLevel;
-        $this->archived = 'true' === (string) $sxe->Archived;
+        $this->archived = $this->parseBoolean($sxe->Archived);
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
         $this->createdBy = Party::fromSimpleXMLElement($sxe->CreatedBy);

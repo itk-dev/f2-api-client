@@ -38,6 +38,16 @@ abstract class AbstractItem implements \JsonSerializable
         return $items;
     }
 
+    protected function parseBoolean(\SimpleXMLElement|string $value): bool
+    {
+        return 'true' === trim((string) $value);
+    }
+
+    protected function formatBoolean(bool $value): string
+    {
+        return $value ? 'true' : 'false';
+    }
+
     protected function createDateTime(\SimpleXMLElement|string $value): ?\DateTimeImmutable
     {
         // @todo Adjust for time zones!
