@@ -21,6 +21,7 @@ final class Matter extends AbstractF2Item
     public ?string $title = null;
     public ?string $type = null;
     public ?string $accessLevel = null;
+    public ?bool $archived = null;
     public ?string $caseNumber = null;
     public ?\DateTimeImmutable $createdDate = null;
     public ?\DateTimeImmutable $modifiedDate = null;
@@ -40,6 +41,7 @@ final class Matter extends AbstractF2Item
         $this->title = (string) $sxe->Title;
         $this->type = (string) $sxe->Type;
         $this->accessLevel = (string) $sxe->AccessLevel;
+        $this->archived = 'true' === (string) $sxe->Archived;
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
         $this->createdBy = Party::fromSimpleXMLElement($sxe->CreatedBy);
@@ -61,6 +63,7 @@ final class Matter extends AbstractF2Item
             'Title' => $this->title,
             'Type' => $this->type,
             'AccessLevel' => $this->accessLevel,
+            'Archived' => $this->archived ? 'true' : 'false',
         ];
     }
 }
