@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
-final class Atom extends AbstractItem
+final class Atom extends AbstractItem implements \Stringable
 {
     public string $id;
     public string $title;

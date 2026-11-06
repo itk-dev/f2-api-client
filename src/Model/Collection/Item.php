@@ -6,7 +6,7 @@ namespace ItkDev\F2ApiClient\Model\Collection;
 
 use ItkDev\F2ApiClient\Model\AbstractItem;
 
-final class Item extends AbstractItem
+final class Item extends AbstractItem implements \Stringable
 {
     public int $id;
     public string $title;

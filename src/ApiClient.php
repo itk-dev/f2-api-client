@@ -260,7 +260,7 @@ class ApiClient
     public function matterCreate(Matter $matter, ?CaseFile $case = null): Matter
     {
         $linkName = self::REL_CREATE_MATTER;
-        $url = null !== $case ? $case->links->getUrl($linkName) : $this->getRequestUrl($linkName);
+        $url = $case?->links->getUrl($linkName) ?? $this->getRequestUrl($linkName);
 
         // The documentation is unclear on this POE stuff. Does it return 303 or 201?
         // resources/f2-rest-docs/f2-rest-docs-v13s.html#11
@@ -507,11 +507,9 @@ class ApiClient
 
     protected function client(): HttpClientInterface
     {
-        if (null === $this->client) {
-            $this->client = HttpClient::create([
-                'base_uri' => $this->options['api_uri'],
-            ]);
-        }
+        $this->client ??= HttpClient::create([
+            'base_uri' => $this->options['api_uri'],
+        ]);
 
         return $this->client;
     }
@@ -678,7 +676,7 @@ class ApiClient
     }
 
     // Psr log levels ordered from lowest to highest severity.
-    private const LOG_LEVELS = [
+    private const array LOG_LEVELS = [
         LogLevel::DEBUG,
         LogLevel::INFO,
         LogLevel::NOTICE,

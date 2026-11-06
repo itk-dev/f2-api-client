@@ -10,7 +10,7 @@ use ItkDev\F2ApiClient\Model\AbstractItem;
 /**
  * @phpstan-type Link array{rel: string, href: string, title:string}
  */
-final class Links extends AbstractItem
+final class Links extends AbstractItem implements \Stringable
 {
     public function __construct(
         /** @var array<string, Link> */
