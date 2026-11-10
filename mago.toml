@@ -2,7 +2,7 @@
 # Welcome to Mago!
 # For full documentation, see https://mago.carthage.software/1.42.0/en/tools/overview/
 version = "1"
-php-version = "8.3.0"
+php-version = "8.4.0"
 
 [source]
 workspace = "."
@@ -40,7 +40,7 @@ no-boolean-flag-parameter = { enabled = false }
 literal-named-argument = { enabled = false }
 halstead = {
   effort-threshold = 7000,
-  difficulty-threshold = 22
+  difficulty-threshold = 25
 }
 
 # Our Model classes have a lot of constructor arguments.

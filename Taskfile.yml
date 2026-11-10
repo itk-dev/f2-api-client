@@ -13,6 +13,13 @@ tasks:
       - task --list
     silent: true
 
+  test:
+    desc: Run all tests
+    cmd:
+      task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm php vendor/bin/phpunit tests
+
   compose:
     cmds:
       - docker compose {{.TASK_ARGS}} {{.CLI_ARGS}}
@@ -30,6 +37,7 @@ tasks:
     - task: coding-standards:markdown:apply
     - task: coding-standards:php:apply
     - task: coding-standards:php:mago:apply
+    - task: coding-standards:rector:apply
     - task: coding-standards:yaml:apply
 
   coding-standards:check:
@@ -37,6 +45,7 @@ tasks:
     - task: coding-standards:markdown:check
     - task: coding-standards:php:check
     - task: coding-standards:php:mago:check
+    - task: coding-standards:rector:check
     - task: coding-standards:yaml:check
 
   coding-standards:composer:apply:
@@ -86,6 +95,17 @@ tasks:
     - task: compose
       vars:
         TASK_ARGS: run --rm mago lint
+
+  coding-standards:rector:apply:
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm php vendor/bin/rector
+
+  coding-standards:rector:check:
+    - task: coding-standards:rector:apply
+    - task: compose
+      vars:
+        TASK_ARGS: run --rm phpfpm php vendor/bin/rector --dry-run
 
   coding-standards:yaml:apply:
     - task: compose

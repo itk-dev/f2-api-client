@@ -10,7 +10,7 @@ abstract class AbstractItem implements \JsonSerializable
     {
         // @mago-ignore analysis:unsafe-instantiation
         // @phpstan-ignore new.static
-        return (new static())->setFromSimpleXMLElement($sxe);
+        return new static()->setFromSimpleXMLElement($sxe);
     }
 
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
@@ -38,6 +38,16 @@ abstract class AbstractItem implements \JsonSerializable
         return $items;
     }
 
+    protected function parseBoolean(\SimpleXMLElement|string $value): bool
+    {
+        return 'true' === trim((string) $value);
+    }
+
+    protected function formatBoolean(bool $value): string
+    {
+        return $value ? 'true' : 'false';
+    }
+
     protected function createDateTime(\SimpleXMLElement|string $value): ?\DateTimeImmutable
     {
         // @todo Adjust for time zones!
@@ -49,7 +59,7 @@ abstract class AbstractItem implements \JsonSerializable
             return null;
         }
 
-        return (new \DateTimeImmutable($value, $apiTimeZone))->setTimeZone($appTimeZone);
+        return new \DateTimeImmutable($value, $apiTimeZone)->setTimeZone($appTimeZone);
     }
 
     /**
