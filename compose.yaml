@@ -1,12 +1,16 @@
 services:
     phpfpm:
-        image: itkdev/php8.3-fpm:latest
+        image: itkdev/php8.4-fpm:latest
         user: ${COMPOSE_USER:-deploy}
         profiles:
             - dev
         environment:
             - PHP_XDEBUG_MODE=${PHP_XDEBUG_MODE:-off}
             - PHP_IDE_CONFIG=serverName=localhost
+            # https://getcomposer.org/doc/06-config.md#environment-variables
+            - COMPOSER_POLICY_COOLDOWN_PERIOD=0
+            # https://getcomposer.org/doc/03-cli.md#composer_no_blocking
+            - COMPOSER_NO_BLOCKING=1
         volumes:
             - .:/app
         # https://docs.docker.com/compose/how-tos/environment-variables/set-environment-variables/#additional-information-1

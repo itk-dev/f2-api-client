@@ -4,7 +4,7 @@
     "license": "MIT",
     "type": "library",
     "require": {
-        "php": "^8.3",
+        "php": "^8.4",
         "ext-simplexml": "*",
         "psr/cache": "^2.0 || ^3.0",
         "swaggest/json-diff": "^3.12",
