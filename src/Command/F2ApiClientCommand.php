@@ -22,6 +22,7 @@ class F2ApiClientCommand extends Command
     public const string ACTION_GET_SERVICE_INDEX = 'getServiceIndex';
     public const string ACTION_CASE_SEARCH = 'caseSearch';
     public const string ACTION_CASE_BY_ID = 'caseById';
+    public const string ACTION_CASE_BY_CASE_NUMBER = 'caseByCaseNumber';
     public const string ACTION_MATTER_SEARCH = 'matterSearch';
     public const string ACTION_MATTER_BY_ID = 'matterById';
     public const string ACTION_MATTER_BY_MATTER_NUMBER = 'matterByMatterNumber';
@@ -31,6 +32,7 @@ class F2ApiClientCommand extends Command
         self::ACTION_GET_SERVICE_INDEX,
         self::ACTION_CASE_SEARCH,
         self::ACTION_CASE_BY_ID,
+        self::ACTION_CASE_BY_CASE_NUMBER,
         self::ACTION_MATTER_SEARCH,
         self::ACTION_MATTER_BY_ID,
         self::ACTION_MATTER_BY_MATTER_NUMBER,
@@ -45,6 +47,7 @@ class F2ApiClientCommand extends Command
             %command.name% getServiceIndex
             %command.name% caseSearch <search-terms>
             %command.name% caseById <case-id>
+            %command.name% caseByCaseNumber <case-number>
             %command.name% matterSearch <search-terms>
             %command.name% matterById <matter-id>
             %command.name% matterByMatterNumber <matter-number>
@@ -78,6 +81,7 @@ class F2ApiClientCommand extends Command
             'getServiceIndex' => $client->getServiceIndex(),
             'caseSearch' => $client->caseSearch((string) $arg),
             'caseById' => $client->caseById((int) $arg),
+            'caseByCaseNumber' => $client->caseByCaseNumber((string) $arg),
             'matterSearch' => $client->matterSearch((string) $arg),
             'matterById' => $client->matterById((int) $arg),
             'matterByMatterNumber' => $client->matterByMatterNumber((string) $arg),
