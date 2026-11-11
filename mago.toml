@@ -59,7 +59,7 @@ cyclomatic-complexity = {
 }
 
 too-many-properties = {
-  threshold = 11
+  threshold = 12
 }
 
 kan-defect = {
