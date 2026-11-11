@@ -4,27 +4,19 @@ declare(strict_types=1);
 
 namespace ItkDev\F2ApiClient\Model;
 
+use ItkDev\F2ApiClient\Model\Matter\AccessLevel;
+use ItkDev\F2ApiClient\Model\Matter\Status;
+use ItkDev\F2ApiClient\Model\Matter\Type;
+
 final class Matter extends AbstractF2Item
 {
-    // resources/f2-rest-docs/f2-rest-docs-v13s.html#65
-    public const string TYPE_INTERNAL = 'Internal';
-    public const string TYPE_INBOUND = 'Inbound';
-    public const string TYPE_OUTBOUND = 'Outbound';
-
-    public const string STATUS_IN_PROGRESS = 'InProgress';
-    public const string STATUS_CLOSED = 'Closed';
-
-    public const string ACCESS_LEVEL_INVOLVED = 'Involved';
-    public const string ACCESS_LEVEL_UNIT = 'Unit';
-    public const string ACCESS_LEVEL_ALL = 'All';
-
     public const int TITLE_MAX_LENGTH = 255;
 
     public ?string $matterNumber = null;
     public ?string $title = null;
-    public ?string $type = null;
-    public ?string $accessLevel = null;
-    public ?string $status = null;
+    public ?Type $type = null;
+    public ?AccessLevel $accessLevel = null;
+    public ?Status $status = null;
     public ?bool $archived = null;
     public ?string $caseNumber = null;
     public ?\DateTimeImmutable $createdDate = null;
@@ -43,9 +35,9 @@ final class Matter extends AbstractF2Item
         $this->matterNumber = (string) $sxe->MatterNumber;
         $this->caseNumber = (string) $sxe->CaseNumber;
         $this->title = (string) $sxe->Title;
-        $this->type = (string) $sxe->Type;
-        $this->accessLevel = (string) $sxe->AccessLevel;
-        $this->status = (string) $sxe->Status;
+        $this->type = Type::from((string) $sxe->Type);
+        $this->accessLevel = AccessLevel::from((string) $sxe->AccessLevel);
+        $this->status = Status::from((string) $sxe->Status);
         $this->archived = $this->parseBoolean($sxe->Archived);
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
