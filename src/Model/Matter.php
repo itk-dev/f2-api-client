@@ -11,6 +11,9 @@ final class Matter extends AbstractF2Item
     public const string TYPE_INBOUND = 'Inbound';
     public const string TYPE_OUTBOUND = 'Outbound';
 
+    public const string STATUS_IN_PROGRESS = 'InProgress';
+    public const string STATUS_CLOSED = 'Closed';
+
     public const string ACCESS_LEVEL_INVOLVED = 'Involved';
     public const string ACCESS_LEVEL_UNIT = 'Unit';
     public const string ACCESS_LEVEL_ALL = 'All';
@@ -21,6 +24,7 @@ final class Matter extends AbstractF2Item
     public ?string $title = null;
     public ?string $type = null;
     public ?string $accessLevel = null;
+    public ?string $status = null;
     public ?bool $archived = null;
     public ?string $caseNumber = null;
     public ?\DateTimeImmutable $createdDate = null;
@@ -41,6 +45,7 @@ final class Matter extends AbstractF2Item
         $this->title = (string) $sxe->Title;
         $this->type = (string) $sxe->Type;
         $this->accessLevel = (string) $sxe->AccessLevel;
+        $this->status = (string) $sxe->Status;
         $this->archived = $this->parseBoolean($sxe->Archived);
         $this->createdDate = $this->createDateTime($sxe->CreatedDate);
         $this->modifiedDate = $this->createDateTime($sxe->ModifiedDate);
@@ -64,6 +69,7 @@ final class Matter extends AbstractF2Item
             'Title' => $this->title,
             'Type' => $this->type,
             'AccessLevel' => $this->accessLevel,
+            'Status' => $this->status,
             'Archived' => $this->formatBoolean($this->archived ?? false),
         ];
         if ($this->responsible) {
