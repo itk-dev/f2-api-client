@@ -14,6 +14,7 @@ final class MatterTest extends TestCase
             'Title' => null,
             'Type' => null,
             'AccessLevel' => null,
+            'Status' => null,
             'Archived' => 'false',
         ];
         $actual = $matter->apiSerialize();
@@ -25,6 +26,7 @@ final class MatterTest extends TestCase
             'Title' => 'My matter',
             'Type' => null,
             'AccessLevel' => null,
+            'Status' => null,
             'Archived' => 'false',
         ];
         $actual = $matter->apiSerialize();
