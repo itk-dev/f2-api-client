@@ -15,12 +15,13 @@ final class Collection extends AbstractItem
     /** @var Item[] */
     public array $items;
 
-    // @mago-ignore analysis:non-documented-property,mixed-property-access
+    // @mago-ignore analysis:non-documented-property
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
         $this->title = (string) $sxe->Title;
         $this->items = [];
+        // @mago-ignore analysis:docblock-type-mismatch
         /** @var \SimpleXMLElement[] $items */
         $items = $sxe->Items->Item;
         foreach ($items as $item) {

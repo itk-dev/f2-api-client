@@ -563,7 +563,7 @@ class ApiClient
                 $response = $this->request(Request::METHOD_GET, $url);
                 $sxe = new \SimpleXMLElement($response->getContent());
 
-                // @mago-ignore analysis:mixed-array-access,non-documented-property
+                // @mago-ignore analysis:non-documented-property
                 $searchUrl = (string) $sxe->Url['template'];
                 if (!filter_var($searchUrl, FILTER_VALIDATE_URL)) {
                     $message = sprintf('Cannot get search template URL for %s', $url);
@@ -638,7 +638,7 @@ class ApiClient
     {
         $items = [];
         $sxe = new \SimpleXMLElement($response->getContent());
-        // @mago-ignore analysis:non-documented-property
+        // @mago-ignore analysis:non-documented-property,docblock-type-mismatch
         /** @var \SimpleXMLElement[] $elements */
         $elements = $sxe->entry;
         foreach ($elements as $element) {

@@ -13,7 +13,7 @@ final class Document extends AbstractF2Item
     public ?\DateTimeImmutable $createdDate = null;
     public ?\DateTimeImmutable $modifiedDate = null;
 
-    // @mago-ignore analysis:non-documented-property,mixed-argument
+    // @mago-ignore analysis:non-documented-property
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {

@@ -28,6 +28,7 @@ final class Links extends AbstractItem implements \Stringable
     public static function fromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
         $links = [];
+        // @mago-ignore analysis:docblock-type-mismatch
         /** @var \SimpleXMLElement[] $elements */
         $elements = $sxe->Link;
         foreach ($elements as $element) {
