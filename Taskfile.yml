@@ -32,6 +32,13 @@ tasks:
         vars:
           TASK_ARGS: run --rm phpfpm composer {{.TASK_ARGS}}
 
+  compose:pull:
+    desc: Pull all compose docker images
+    cmd:
+      task: compose
+      vars:
+        TASK_ARGS: --profile '*' pull
+
   coding-standards:apply:
     - task: coding-standards:composer:apply
     - task: coding-standards:markdown:apply
