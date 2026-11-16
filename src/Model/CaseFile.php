@@ -18,7 +18,7 @@ final class CaseFile extends AbstractF2Item
     public ?Party $modifiedBy = null;
     public ?Party $responsible = null;
 
-    // @mago-ignore analysis:non-documented-property,mixed-argument
+    // @mago-ignore analysis:non-documented-property
     #[\Override]
     public function setFromSimpleXMLElement(\SimpleXMLElement $sxe): static
     {
